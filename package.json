@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "server": "npx tsx src/back-end/server.ts",
+    "test": "npx tsx src/back-end/api/main.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
