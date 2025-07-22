@@ -3,6 +3,8 @@ import connectDB from "./config/dbConnect";
 import cors from "cors";
 import OnboardingApplicationRoutes from "./routes/OnboardingApplicationRoutes";
 import UserRoutes from "./routes/UserRoutes";
+import VisaStatusManagementRoutes from "./routes/VisaStatusManagementRoutes";
+import RegistrationTokenRoutes from "./routes/RegistrationTokenRoutes";
 
 const app = express();
 app.use(cors());
@@ -14,6 +16,8 @@ app.use(express.json());
 // Add routes
 app.use("/", UserRoutes);
 app.use("/", OnboardingApplicationRoutes);
+app.use("/", VisaStatusManagementRoutes);
+app.use("/", RegistrationTokenRoutes);
 
 // Connect to server
 connectDB().then(() => {

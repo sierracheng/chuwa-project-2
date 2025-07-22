@@ -8,7 +8,7 @@ import {
 
 export interface IOnboardingApplication extends Document {
   _id: Types.ObjectId;
-  userId: Types.ObjectId;
+  userId: Types.ObjectId; // ref to User
   status: "pending" | "approved" | "rejected";
   documents: IDocumentInfo;
   reference: IReference;
