@@ -1,10 +1,12 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 import {
-  DocumentSchema,
-  ReferenceSchema,
   type IDocumentInfo,
   type IReference,
-} from "./User";
+} from "./Types";
+import {
+  DocumentSchema,
+  ReferenceSchema,
+} from "./Subschema";
 
 export interface IOnboardingApplication extends Document {
   _id: Types.ObjectId;

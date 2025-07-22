@@ -1,77 +1,23 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
+import { VisaStepSchema } from "./Subschema";
+import type { IVisaStep } from "./Types";
 
 export interface IVisaStatusManagement extends Document {
   _id: Types.ObjectId;
   user: Types.ObjectId; // ref to User
-  optReceipt?: {
-    status: "pending" | "approved" | "rejected";
-    feedback?: string;
-    document?: {
-      url: string;
-      uploadedAt: Date;
-    };
-  };
-  optEAD?: {
-    status: "pending" | "approved" | "rejected";
-    feedback?: string;
-    document?: {
-      url: string;
-      uploadedAt: Date;
-    };
-  };
-  i983?: {
-    status: "pending" | "approved" | "rejected";
-    feedback?: string;
-    document?: {
-      url: string;
-      uploadedAt: Date;
-    };
-  };
-  i20?: {
-    status: "pending" | "approved" | "rejected";
-    feedback?: string;
-    document?: {
-      url: string;
-      uploadedAt: Date;
-    };
-  };
+  optReceipt?: IVisaStep;
+  optEAD?: IVisaStep;
+  i983?: IVisaStep;
+  i20?: IVisaStep;
 }
 
 export const VisaStatusManagementSchema = new Schema<IVisaStatusManagement>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    optReceipt: {
-      status: { type: String, enum: ["pending", "approved", "rejected"] },
-      feedback: String,
-      document: {
-        url: String,
-        uploadedAt: Date,
-      },
-    },
-    optEAD: {
-      status: { type: String, enum: ["pending", "approved", "rejected"] },
-      feedback: String,
-      document: {
-        url: String,
-        uploadedAt: Date,
-      },
-    },
-    i983: {
-      status: { type: String, enum: ["pending", "approved", "rejected"] },
-      feedback: String,
-      document: {
-        url: String,
-        uploadedAt: Date,
-      },
-    },
-    i20: {
-      status: { type: String, enum: ["pending", "approved", "rejected"] },
-      feedback: String,
-      document: {
-        url: String,
-        uploadedAt: Date,
-      },
-    },
+    optReceipt: VisaStepSchema,
+    optEAD: VisaStepSchema,
+    i983: VisaStepSchema,
+    i20: VisaStepSchema,
   },
   { timestamps: true }
 );
