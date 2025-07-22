@@ -1,9 +1,8 @@
-// TODO: Connect server to mongodb
-// Add routes
-
 import express from "express";
 import connectDB from "./config/dbConnect";
 import cors from "cors";
+import OnboardingApplicationRoutes from "./routes/OnboardingApplicationRoutes";
+import UserRoutes from "./routes/UserRoutes";
 
 const app = express();
 app.use(cors());
@@ -13,6 +12,8 @@ const PORT = process.env.PORT || 3004;
 app.use(express.json());
 
 // Add routes
+app.use("/", UserRoutes);
+app.use("/", OnboardingApplicationRoutes);
 
 // Connect to server
 connectDB().then(() => {

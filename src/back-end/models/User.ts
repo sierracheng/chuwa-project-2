@@ -5,12 +5,13 @@ import {
   SSN_REGEX,
   USERNAME_REGEX,
 } from "../../utils/util";
+import type { IOnboardingApplication } from "./OnboardingApplication";
 
 export const Gender = {
   Male: "Male",
   Female: "Female",
   Other: "Other",
-};
+} as const;
 
 export const Visa = {
   Citizen: "Citizen",
@@ -21,7 +22,7 @@ export const Visa = {
   F1: "F1 (CPT, OPT)",
   H4: "H4",
   Other: "Other",
-};
+} as const;
 
 type GenderType = (typeof Gender)[keyof typeof Gender];
 type VisaTypeUnion = (typeof Visa)[keyof typeof Visa];
@@ -66,7 +67,7 @@ export interface IReference {
 /**
  * Sub-Schema for Person's Name
  */
-const PersonNameSchema = new Schema(
+export const PersonNameSchema = new Schema(
   {
     firstName: { type: String, required: true },
     middleName: { type: String },
@@ -79,7 +80,7 @@ const PersonNameSchema = new Schema(
 /**
  * Sub-Schema for Person's Contact Information
  */
-const ContactInfoSchema = new Schema(
+export const ContactInfoSchema = new Schema(
   {
     cellPhone: { type: String, required: true },
     workPhone: { type: String },
@@ -91,7 +92,7 @@ const ContactInfoSchema = new Schema(
 /**
  * Sub-Schema for Emergency Contact
  */
-const EmergencyContactSchema = new Schema(
+export const EmergencyContactSchema = new Schema(
   {
     realName: PersonNameSchema,
     contactInfo: ContactInfoSchema,
@@ -103,7 +104,7 @@ const EmergencyContactSchema = new Schema(
 /**
  * Sub-Schema for Necessary documents
  */
-const DocumentSchema = new Schema(
+export const DocumentSchema = new Schema(
   {
     profilePictureUrl: { type: String },
     driverLicenseUrl: { type: String },
@@ -115,7 +116,7 @@ const DocumentSchema = new Schema(
 /**
  * Sub-Schema for who recommended you to this company
  */
-const ReferenceSchema = new Schema(
+export const ReferenceSchema = new Schema(
   {
     realName: PersonNameSchema,
     contactInfo: ContactInfoSchema,
@@ -136,9 +137,7 @@ export interface IUser extends Document {
   contactInfo: IContactInfo;
   employment: IEmployment;
   emergencyContact: IEmergencyContact;
-  documents: IDocumentInfo;
-  reference: IReference;
-  feedback: string; // This uses for storing feedback from HR
+  onboardingApplication: IOnboardingApplication;
   role: "HR" | "Employee";
 }
 
@@ -165,9 +164,10 @@ const UserSchema = new Schema<IUser>(
       daysRemaining: { type: Number, default: 0 },
     },
     emergencyContact: EmergencyContactSchema,
-    documents: DocumentSchema,
-    reference: ReferenceSchema,
-    feedback: { type: String },
+    onboardingApplication: {
+      type: Schema.Types.ObjectId,
+      ref: "OnboardingApplication",
+    },
     role: {
       type: String,
       enum: ["HR", "Employee"],
