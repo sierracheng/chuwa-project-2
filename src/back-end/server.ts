@@ -13,7 +13,10 @@ import VisaStatusManagementRoutes from "./routes/VisaStatusManagementRoutes";
 import RegistrationTokenRoutes from "./routes/RegistrationTokenRoutes";
 
 const app = express();
+app.use(cors());
 const PORT = process.env.PORT || 3004;
+
+app.use(express.json());
 
 async function startApolloServer() {
   await connectDB();
@@ -29,8 +32,8 @@ async function startApolloServer() {
     cors(),
     express.json(),
     expressMiddleware(apolloServer, {
-      context: async ({req}) => {
-        return { user: null }; 
+      context: async ({ req }) => {
+        return { user: null };
       },
     })
   );

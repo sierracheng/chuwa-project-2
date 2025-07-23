@@ -19,6 +19,10 @@ import { User } from "../models/User";
 export async function createRegistrationToken(req: Request, res: Response) {
   try {
     const { from, email } = req.body;
+    console.log("Received request to create registration token:", {
+      from,
+      email,
+    });
     // Validate email format
     if (!validateEmailRequest(email)) {
       return res.status(400).json({ message: "Email query is not valid" });
@@ -39,6 +43,7 @@ export async function createRegistrationToken(req: Request, res: Response) {
       token = crypto.randomBytes(32).toString("hex");
       exists = (await RegistrationToken.exists({ token })) !== null;
     } while (exists);
+    console.log("Generated unique token:", token);
     // The token should be valid for 3 hours
     const expiresAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
     // Save the token to the database
@@ -47,18 +52,25 @@ export async function createRegistrationToken(req: Request, res: Response) {
       token,
       expiresAt,
     });
+    console.log("Saved registration token to DB");
     // signup url: http://localhost:xxxx/signup?email=xxx&token=xx
-    const signupUrl = `${
-      process.env.FRONTEND_URL
-    }/signup?email=${encodeURIComponent(email)}&token=${token}`;
+    const signupUrl = `${process.env.SIGN_UP_URL}?email=${encodeURIComponent(
+      email
+    )}&token=${token}`;
+    console.log("Signup URL:", signupUrl);
     // Send the token to the user's email
-    await sendEmail({
-      to: email,
-      from: from || process.env.DEFAULT_FROM_EMAIL!, // Whoever clicked the send email button, will be the sender
-      subject: "Chuwa - Please Sign-up Your Account",
-      text: `Please click the link below to sign up your account: ${signupUrl}`,
-      html: `<p>Please click the link below to sign up your account: <a href="${signupUrl}">${signupUrl}</a></p>`,
-    });
+    try {
+      await sendEmail({
+        to: email,
+        from: from || process.env.DEFAULT_FROM_EMAIL!, // Whoever clicked the send email button, will be the sender
+        subject: "Chuwa - Please Sign-up Your Account",
+        text: `Please click the link below to sign up your account: ${signupUrl}`,
+        html: `<p>Please click the link below to sign up your account: <a href="${signupUrl}">${signupUrl}</a></p>`,
+      });
+    } catch (error) {
+      console.error("Failed to send email:", error);
+    }
+
     // Return the token
     return res.status(200).json({ token });
   } catch (error) {

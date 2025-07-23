@@ -9,9 +9,13 @@ import { type Response } from "express";
  * @param error
  * @param context Additional context you want to report
  */
-export function reportError(res: Response, error: unknown, context: string) {
-  console.error(`Error in ${context}:`, error);
-  return res.status(500).json({ message: "Internal server error." });
+export function reportError(res: Response, error: unknown, location = "") {
+  console.error(`Error at ${location}:`, error);
+  return res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+    error: error instanceof Error ? error.message : String(error),
+  });
 }
 
 /**
