@@ -1,30 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-
-type Employee = {
-    _id: string
-    realName: {
-        firstName: string
-        lastName: string
-        preferredName?: string
-    }
-    ssn: string
-    email: string
-    contactInfo: {
-        cellPhone: string
-    }
-    employment: {
-        visaTitle: string
-    }
-}
+import type { IUser } from '../../back-end/models/User'
 
 export function EmployeeProfilesPage() {
-    const [employees, setEmployees] = useState<Employee[]>([])
+    const [employees, setEmployees] = useState<IUser[]>([])
 
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const res = await axios.get('/api/users')
+                const res = await axios.get<IUser[]>('/api/users')
                 setEmployees(res.data)
             } catch (err) {
                 console.error('Failed to fetch employees:', err)
@@ -59,10 +43,12 @@ export function EmployeeProfilesPage() {
                     {/* <tbody className="divide-y divide-gray-200">
                         {employees.map(emp => (
                             <tr key={emp._id.toString()} className="hover:bg-gray-50">
-                                <td className="px-6 py-4">{`${emp.realName.firstName} ${emp.realName.lastName}`}</td>
-                                <td className="px-6 py-4">{emp.employment.visaTitle}</td>
+                                <td className="px-6 py-4">
+                                    {emp.realName?.firstName} {emp.realName?.lastName}
+                                </td>
+                                <td className="px-6 py-4">{emp.employment?.visaTitle}</td>
                                 <td className="px-6 py-4">{emp.ssn}</td>
-                                <td className="px-6 py-4">{emp.contactInfo.cellPhone}</td>
+                                <td className="px-6 py-4">{emp.contactInfo?.cellPhone}</td>
                                 <td className="px-6 py-4">{emp.email}</td>
                             </tr>
                         ))}
