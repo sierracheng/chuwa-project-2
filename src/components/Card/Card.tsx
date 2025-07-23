@@ -1,6 +1,5 @@
 import React, { type MouseEventHandler } from 'react';
 import './Card.css';
-import { icons } from '../../constants/icons';
 
 export interface CardProps {
     children: React.ReactNode;
@@ -9,16 +8,9 @@ export interface CardProps {
 
 }
 
-export function Card({ children, className = '', handleClose }: CardProps) {
+export function Card({ children, className = '' }: CardProps) {
     return (
         <div className={`card ${className}`}>
-            {handleClose &&
-                <div
-                    className="login-close"
-                    onClick={handleClose}
-                    aria-label="Close"
-                >{icons.CLOSE}
-                </div>}
             {children}
         </div>);
 }

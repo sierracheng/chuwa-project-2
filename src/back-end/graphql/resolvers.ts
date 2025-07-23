@@ -31,41 +31,34 @@ export const resolvers = {
             },
         },
     Mutation: {
-        createUser: async (_: any, { input }: { input: any }) => {
-            const tokenDoc = await RegistrationToken.findOne({ token: input.token });
-            if (!tokenDoc) {
-                throw new Error("Invalid or missing registration token");
-            }
+        createSimpleUser: async (_: any, { input }: { input: any }) => {
+        const tokenDoc = await RegistrationToken.findOne({ token: input.token });
+        if (!tokenDoc) {
+            throw new Error("Invalid or missing registration token");
+        }
 
-            if (tokenDoc.expiresAt < new Date()) {
-                throw new Error("Registration token has expired");
-            }
+        if (tokenDoc.expiresAt < new Date()) {
+            throw new Error("Registration token has expired");
+        }
 
-            const existingUser = await User.findOne({ email: input.email });
-            if (existingUser) {
-                throw new Error("User with this email already exists");
-            }
+        const existingUser = await User.findOne({ email: input.email });
+        if (existingUser) {
+            throw new Error("User with this email already exists");
+        }
 
-            const newUser = new User({
-                username: input.username,
-                password: input.password, // Ensure to hash this in the User model
-                email: input.email,
-                realName: input.realName,
-                ssn: input.ssn,
-                dateOfBirth: input.dateOfBirth,
-                gender: input.gender,
-                address: input.address,
-                contactInfo: input.contactInfo,
-                employment: input.employment,
-                emergencyContact: input.emergencyContact,
-                role: 'Employee',
-            });
+        const newUser = new User({
+            username: input.username,
+            password: input.password, // hash if needed
+            email: input.email,
+            role: "Employee",
+        });
 
-            await newUser.save();
-            await RegistrationToken.deleteOne({ _id: tokenDoc._id });
+        await newUser.save();
+        await RegistrationToken.deleteOne({ _id: tokenDoc._id });
 
-            return newUser;
+        return newUser;
         },
+
         updateUser: async (_: any, { id, input }: { id: string; input: any }) => {
             const user = await User.findById(id);
             if (!user) {

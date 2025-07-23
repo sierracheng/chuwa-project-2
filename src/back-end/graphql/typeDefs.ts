@@ -125,6 +125,13 @@ export const typeDefs = gql`
         getOnboardingApplicationByUserId(userId: ID!): OnboardingApplication
     }
 
+    input SimpleUserInput {
+        token: String!
+        username: String!
+        password: String!
+        email: String!
+    }
+
     input PersonNameInput {
         firstName: String!
         middleName: String
@@ -196,8 +203,8 @@ export const typeDefs = gql`
     }
 
     type Mutation {
-        createUser(
-            input: RegisterInput!
+        createSimpleUser(
+            input: SimpleUserInput!
         ): User!
         updateUser(
             id: ID!

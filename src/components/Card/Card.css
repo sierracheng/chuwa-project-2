@@ -17,19 +17,3 @@
     align-items: center;
     text-align: center;
 }
-
-.login-close {
-    position: absolute;
-    /* now relative to .card */
-    top: 1rem;
-    right: 1rem;
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    color: #6b7280;
-    cursor: pointer;
-}
-
-.login-close:hover {
-    color: #374151;
-}

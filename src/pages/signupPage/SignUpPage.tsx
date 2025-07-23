@@ -1,72 +1,70 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { PasswordInput } from "@/components/ui/password-input"
+import { Button } from "@/components/ui/button"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+import { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "../../components/Card/Card";
-import { EMAIL_REGEX, PASSWORD_REGEX } from "../../utils/regex";
-import "./SignUpPage.css";
-import { createUserAPI, type UserData } from "../../back-end/APITesting/User";
+import { PASSWORD_REGEX } from "../../utils/util";
+import { createSimpleUserAPI } from "../../back-end/api/userAPI";
+
+const formSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().regex(PASSWORD_REGEX, "Invalid password input"),
+  confirm_password: z.string().min(1, "Confirm password is required"),
+  email: z.email("Invalid email address"),
+}).refine((data) => data.password === data.confirm_password, {
+    message: "Passwords do not match", 
+  path: ["confirm_password"],
+});
+
 
 export function SignUpPage() {
   const navigate = useNavigate();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
 
   const [signupSuccess, setSignupSuccess] = useState(false);
 
-  const handleClose = () => {
-    navigate(-1);
-  };
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      confirm_password: "",
+      email: email || "",
+    },
+  });
 
-  const validateEmail = (value: string) => {
-    if (!EMAIL_REGEX.test(value)) {
-      setEmailError("Invalid email input!");
-      return false;
-    }
-    setEmailError("");
-    return true;
-  };
 
-  const validatePassword = (value: string) => {
-    if (!PASSWORD_REGEX.test(value)) {
-      setPasswordError("Invalid password input!");
-      return false;
-    }
-    setPasswordError("");
-    return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const emailOK = validateEmail(email);
-    const passwordOK = validatePassword(password);
-
-    if (!emailOK || !passwordOK) {
-      return;
-    }
-
-    const userData: UserData = {
-      email: email,
-      password: password,
-      role: isAdmin ? "Admin" : "User",
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    const userData = {
+      token: token || '',
+      username: data.username,
+      password: data.password,
+      email: data.email,
     };
 
     try {
-      const response = await createUserAPI(userData);
-      console.log(response.success);
+      const response = await createSimpleUserAPI(userData);
+      // console.log(response.success);
       if (response.success) {
         setSignupSuccess(true);
         setTimeout(() => {
           navigate("/login");
         }, 3000);
-      } else {
-        alert("Email has been used.");
       }
     } catch (error) {
       console.error("Error creating user:", error);
@@ -74,81 +72,91 @@ export function SignUpPage() {
   };
 
   return (
-    <Card handleClose={handleClose}>
-      <div className="signup-container">
-        {signupSuccess && (
-          <div className="success-popup">
-            🎉 Account created! Redirecting to login page...
-          </div>
-        )}
-        <h2 className="signup-title">Sign up an account</h2>
-
-        <form className="signup-form" onSubmit={handleSubmit}>
-          <div className={`${emailError ? "" : "form-group"}`}>
-            <label htmlFor="signup-email" className="form-label">
-              Email
-            </label>
-            <input
-              id="signup-email"
-              type="text"
-              className={`form-input ${emailError ? "invalid" : ""}`}
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            {emailError && <small className="error-text">{emailError}</small>}
-          </div>
-
-          <div className={`${passwordError ? "" : "form-group"}`}>
-            <label htmlFor="signup-password" className="form-label">
-              Password
-            </label>
-            <div className="password-wrapper">
-              <input
-                id="signup-password"
-                type={showPassword ? "text" : "password"}
-                className={`form-input ${passwordError ? "invalid" : ""}`}
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <button
-                type="button"
-                className="show-button"
-                onClick={() => setShowPassword((v) => !v)}
-                tabIndex={-1}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-            {passwordError && (
-              <small className="error-text">{passwordError}</small>
-            )}
-          </div>
-
-          <div className="checkbox-group">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={isAdmin}
-                onChange={(e) => setIsAdmin(e.target.checked)}
-                className="form-checkbox"
-              />
-              Is Admin?
-            </label>
-          </div>
-
-          <button type="submit" className="submit-button">
-            Create account
-          </button>
-        </form>
-
-        <div className="signup-footer">
-          <p>
-            Already have an account? <a href="/login">Sign in</a>
-          </p>
-        </div>
+    <div className="relative w-full min-h-screen overflow-hidden">
+      <div className="absolute fixed inset-0">
+        <img
+          src="/images/signup-bg.png"
+          alt="Background"
+          className="h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-blue-900/50 backdrop-blur-sm"></div>
       </div>
-    </Card>
+      <div className='relative z-10 flex min-h-screen items-center justify-center px-4'>
+        <Card className="w-full max-w-md p-6">
+          {signupSuccess && (
+            <div className="mb-4 rounded-md border border-green-500 bg-green-50 p-4 text-green-700 text-center font-medium">
+              🎉 Account created! Redirecting to login page...
+            </div>
+          )}
+          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">Register an account</h2>
+
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-4 w-full"
+            >
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type='email' {...field}/>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+                )}
+              />
+              <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Choose a username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="confirm_password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <PasswordInput placeholder="••••••••" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+              <Button type="submit" className="w-full">
+                Sign Up
+              </Button>
+
+            </form>
+          </Form>
+        </Card>
+      </div>
+    </div>
   );
 }
