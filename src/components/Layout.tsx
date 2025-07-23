@@ -1,7 +1,17 @@
+"use client";
+import { NavigationBar} from './NavigationBar';
 import React from "react";
 
-const Layout = () => {
-  return <div>Layout</div>;
-};
+export function Layout({ children }: { children: React.ReactNode }) {
 
-export default Layout;
+  return (
+    <div className="flex items-center justify-center p-2">
+    <div className="flex w-screen h-screen overflow-hidden border border-gray-200 rounded-md">
+      <NavigationBar />
+      <div className="flex-1 overflow-auto bg-white">
+        {children}
+      </div>
+    </div>
+    </div>
+  );
+}

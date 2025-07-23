@@ -15,6 +15,7 @@ function main() {
   testCreateRegistrationTokenAPI(
     "zhaoyq0429@gmail.com",
     "zgeming@seas.upenn.edu"
+    //akiko948436464@gmail.com
   );
 }
 

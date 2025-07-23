@@ -5,6 +5,8 @@ import {
   LoginPage,
   EmployeeProfilesPage,
 } from './pages'
+import { NavigationBar } from './components/NavigationBar'
+import { Layout } from './components/Layout'
 
 
 function App() {
@@ -12,16 +14,15 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/signup" element={<SignUpPage />} />
-      </Routes>
-
-      <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/hr/employees" 
+        element={
+          <Layout>
+            <EmployeeProfilesPage />
+          </Layout>
+        } 
+        />
       </Routes>
-
-      <Routes>
-        <Route path="/hr/employees" element={<EmployeeProfilesPage />} />
-      </Routes>
-
     </BrowserRouter>
   )
 }

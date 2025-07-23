@@ -34,7 +34,8 @@ export function SignUpPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const email = searchParams.get("email");
+  const encodedEmail = searchParams.get("email");
+  const email = encodedEmail ? decodeURIComponent(encodedEmail) : "";
 
   const [signupSuccess, setSignupSuccess] = useState(false);
 
@@ -87,7 +88,7 @@ export function SignUpPage() {
         />
       </div>
       <div className='relative z-10 flex min-h-screen items-center justify-center px-4'>
-        <Card className="w-full max-w-md p-6 h-[500px] flex flex-col  items-center justify-center">
+        <Card className="w-full max-w-md p-6 flex flex-col items-center justify-center">
           {signupSuccess && (
             <div className="mb-4 rounded-md border border-green-500 bg-green-50 p-4 text-green-700 text-center font-medium">
               🎉 Account created! Redirecting to login page...
