@@ -25,7 +25,7 @@ const formSchema = z.object({
   confirm_password: z.string().min(1, "Confirm password is required"),
   email: z.email("Invalid email address"),
 }).refine((data) => data.password === data.confirm_password, {
-    message: "Passwords do not match", 
+  message: "Passwords do not match",
   path: ["confirm_password"],
 });
 
@@ -80,14 +80,14 @@ export function SignUpPage() {
           className="absolute top-0 left-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-blue-900/50 backdrop-blur-sm"></div>
-          <img
+        <img
           src="/images/LargeLogo.png"
           alt="Logo"
           className="absolute top-0 left-0 h-12 w-auto mt-4 ml-4 sm:h-20"
         />
       </div>
       <div className='relative z-10 flex min-h-screen items-center justify-center px-4'>
-        <Card className="w-full max-w-md p-6">
+        <Card className="w-full max-w-md p-6 h-[500px] flex flex-col  items-center justify-center">
           {signupSuccess && (
             <div className="mb-4 rounded-md border border-green-500 bg-green-50 p-4 text-green-700 text-center font-medium">
               🎉 Account created! Redirecting to login page...
@@ -98,63 +98,63 @@ export function SignUpPage() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-4 w-full"
+              className="space-y-4 w-full flex flex-col gap-2"
             >
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input type='email' {...field}/>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type='email' {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
               <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Choose a username" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <PasswordInput placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="confirm_password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-              <Button type="submit" className="w-full">
+              <FormField
+                control={form.control}
+                name="confirm_password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm Password</FormLabel>
+                    <FormControl>
+                      <PasswordInput placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full bg-[#2D68FE]">
                 Sign Up
               </Button>
 
