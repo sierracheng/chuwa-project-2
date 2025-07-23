@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState } from "react"
+import { useNavigate } from "react-router-dom";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
   IconArrowLeft,
@@ -8,10 +9,20 @@ import {
   IconUserSearch,
   IconDirections,
 } from "@tabler/icons-react";
-import { motion } from "motion/react";
-import { cn } from "@/lib/utils";
 
 export function NavigationBar() {
+    const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+    try{
+        // await logoutAPI;
+        navigate("/login");
+    } catch (error) {
+        console.error("Logout failed:", error);
+
+        alert("Logout failed. Please try again.");
+    }
+  }
   const links = [
     {
       label: "Home",
@@ -43,13 +54,14 @@ export function NavigationBar() {
     },
     {
       label: "Logout",
-      href: "/logout",
+      href: "/login",
       icon: (
         <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
+    onClick: handleLogout,
     },
   ];
-  const [open, setOpen] = useState(false);
+
   return (
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">

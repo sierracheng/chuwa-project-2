@@ -19,7 +19,7 @@ export function EmployeeProfilesPage() {
     }, [])
 
     return (
-        <div className="flex flex-col min-h-screen pl-30 py-8">
+        <div className="flex flex-col min-h-screen pl-12 py-8">
             <h1 className="text-[40px] text-left font-semibold mb-6">Employee Profiles</h1>
             <div className="items-center gap-4 mb-6 w-1/2">
                 <input
