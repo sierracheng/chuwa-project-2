@@ -5,9 +5,9 @@ import { Schema } from "mongoose";
  */
 export const PersonNameSchema = new Schema(
   {
-    firstName: { type: String, required: true },
+    firstName: { type: String },
     middleName: { type: String },
-    lastName: { type: String, required: true },
+    lastName: { type: String },
     preferredName: { type: String },
   },
   { _id: false }
@@ -18,9 +18,9 @@ export const PersonNameSchema = new Schema(
  */
 export const ContactInfoSchema = new Schema(
   {
-    cellPhone: { type: String, required: true },
+    cellPhone: { type: String },
     workPhone: { type: String },
-    email: { type: String, required: true },
+    email: { type: String },
   },
   { _id: false }
 );
@@ -32,7 +32,7 @@ export const EmergencyContactSchema = new Schema(
   {
     realName: PersonNameSchema,
     contactInfo: ContactInfoSchema,
-    relationship: { type: String, required: true },
+    relationship: { type: String },
   },
   { _id: false }
 );
@@ -60,11 +60,17 @@ export const ReferenceSchema = new Schema(
   { _id: false }
 );
 
-export const VisaStepSchema = new Schema({
-  status: { type: String, enum: ["pending", "approved", "rejected"], required: true },
-  feedback: String,
-  document: {
-    url: String,
-    uploadedAt: Date,
+export const VisaStepSchema = new Schema(
+  {
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+    },
+    feedback: String,
+    document: {
+      url: String,
+      uploadedAt: Date,
+    },
   },
-}, { _id: false });
+  { _id: false }
+);
