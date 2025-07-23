@@ -77,9 +77,14 @@ export function SignUpPage() {
         <img
           src="/images/signup-bg.png"
           alt="Background"
-          className="h-full w-full object-cover"
+          className="absolute top-0 left-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-blue-900/50 backdrop-blur-sm"></div>
+          <img
+          src="/images/LargeLogo.png"
+          alt="Logo"
+          className="absolute top-0 left-0 h-12 w-auto mt-4 ml-4 sm:h-20"
+        />
       </div>
       <div className='relative z-10 flex min-h-screen items-center justify-center px-4'>
         <Card className="w-full max-w-md p-6">
