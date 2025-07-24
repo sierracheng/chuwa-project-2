@@ -1,6 +1,7 @@
 // TODO: add api function here
 
 import { createRegistrationTokenAPI } from "./registrationTokenAPI";
+import { validateTokenAPI } from "./validateTokenAPI";
 
 async function testCreateRegistrationTokenAPI(from: string, email: string) {
   try {
@@ -11,12 +12,28 @@ async function testCreateRegistrationTokenAPI(from: string, email: string) {
   }
 }
 
+async function testValidateTokenAPI(token: string) {
+  try {
+    const isValid = await validateTokenAPI(token);
+    console.log(`Token ${token} is valid:`, isValid);
+  } catch (error) {
+    console.error("Error validating token:", error);
+  }
+}
+
 function main() {
-  testCreateRegistrationTokenAPI(
-    "zhaoyq0429@gmail.com",
-    "zgeming@seas.upenn.edu"
-    //akiko948436464@gmail.com
+  // testCreateRegistrationTokenAPI(
+  //   "akiko948436464@gmail.com",
+  //   // "zhaoyq0429@gmail.com"
+  //   "Test123Grace@gmail.com"
+  //   // "zgeming@seas.upenn.edu"
+  //   //akiko948436464@gmail.com
+  // );
+  testValidateTokenAPI(
+    "7464b889991c37662977aed35a5e48266fbb3380c05af78ed1251e5b28e8ec78"
   );
 }
+
+
 
 main();

@@ -45,7 +45,7 @@ async function startApolloServer() {
   app.use("/", OnboardingApplicationRoutes);
   app.use("/", VisaStatusManagementRoutes);
   app.use("/", RegistrationTokenRoutes);
-  app.use("/api", ValidateTokenRoutes);
+  app.use("/", ValidateTokenRoutes);
 
 
   app.listen(PORT, () => {

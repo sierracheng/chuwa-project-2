@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectRole } from "@/redux/features/authenticate/authenticateSlice";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import {
   IconArrowLeft,
@@ -8,11 +10,15 @@ import {
   IconBox,
   IconUserSearch,
   IconDirections,
+  IconUser,
+  IconFileText,
 } from "@tabler/icons-react";
 
 export function NavigationBar() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
+    const role = useSelector(selectRole);
+
     const handleLogout = async () => {
     try{
         // await logoutAPI;
@@ -23,7 +29,7 @@ export function NavigationBar() {
         alert("Logout failed. Please try again.");
     }
   }
-  const links = [
+  const hrLinks = [
     {
       label: "Home",
       href: "/home",
@@ -52,15 +58,35 @@ export function NavigationBar() {
         <IconDirections className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
     },
+  ];
+
+  const employeeLinks = [
     {
-      label: "Logout",
-      href: "/login",
+      label: "Personal Information",
+      href: "/employee/profile",
       icon: (
-        <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <IconUser className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
-    onClick: handleLogout,
+    },
+    {
+      label: "Visa Status Management",
+      href: "/employee/visa",
+      icon: (
+        <IconFileText className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
     },
   ];
+
+  const logoutLink = {
+    label: "Logout",
+    href: "/login",
+    icon: (
+      <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+    ),
+    onClick: handleLogout,
+  };
+
+  const links = role === "HR" ? [...hrLinks, logoutLink] : [...employeeLinks, logoutLink];
 
   return (
       <Sidebar open={open} setOpen={setOpen}>

@@ -62,7 +62,7 @@ export function SignUpPage() {
 
     try {
       const response = await createSimpleUserAPI(userData);
-      // console.log(response.success);
+      console.log(response.success);
       if (response.success) {
         setSignupSuccess(true);
         setTimeout(() => {
@@ -130,7 +130,7 @@ export function SignUpPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type='email' {...field} />
+                      <Input type='email' {...field} readOnly disabled className="bg-gray-100 cursor-not-allowed" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

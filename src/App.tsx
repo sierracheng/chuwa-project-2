@@ -8,8 +8,9 @@ import {
   OnboardingPage,
   ErrorPage,
 } from "./pages";
-import { NavigationBar } from "./components/NavigationBar";
 import { Layout } from "./components/Layout";
+import { HRProtectedRoutes } from "./routes/HRProtectedRoutes";
+import { EmployeeRouteProtection } from "./routes/EmployeeRouteProtection";
 
 function App() {
   return (
@@ -23,23 +24,30 @@ function App() {
         />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/hr/employees"
-          element={
+        
+        <Route element={<HRProtectedRoutes />}>
+          <Route
+            path="/hr/employees"
+            element={
             <Layout>
               <EmployeeProfilesPage />
             </Layout>
           }
-        />
-        <Route
-          path="/hr/visa"
-          element={
-            <Layout>
-              <VisaStatusPage />
-            </Layout>
-          }
-        />
-        <Route path="/onboarding" element={<OnboardingPage />} />
+          />
+          <Route
+            path="/hr/visa"
+            element={
+              <Layout>
+                <VisaStatusPage />
+              </Layout>
+            }
+          />
+        </Route>
+
+        <Route element={<EmployeeRouteProtection />}>
+          <Route path="/onboarding" element={<OnboardingPage />} />
+        </Route>
+        
       </Routes>
     </BrowserRouter>
   );

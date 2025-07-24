@@ -4,6 +4,7 @@ import { RegistrationToken } from "../models/RegistrationToken";
 import { sendEmail } from "../sendGrid/SendEmail";
 import crypto from "crypto";
 import { User } from "../models/User";
+import { email } from "zod";
 
 /**
  * TODO:
@@ -75,5 +76,35 @@ export async function createRegistrationToken(req: Request, res: Response) {
     return res.status(200).json({ token });
   } catch (error) {
     return reportError(res, error, "createRegistrationToken");
+  }
+}
+
+
+//Validate the registration token
+
+export async function validateRegistrationToken(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { token } = req.body;
+    console.log("Received request to validate registration token:", token);
+    // Check if the token exists in the database
+    const registrationToken = await RegistrationToken.findOne({ token });
+    if (!registrationToken) {
+      return res.status(400).json({ message: "Invalid registration token" });
+    }
+    // Check if the token is expired
+    if (registrationToken.expiresAt < new Date()) {
+      return res.status(400).json({ message: "Registration token expired" });
+    }
+    // Return true if the token is valid
+    console.log("Registration token is valid");
+    return res.status(200).json({
+      valid:true,
+      email: registrationToken.email,
+    });
+  } catch (error) {
+    return reportError(res, error, "validateRegistrationToken");
   }
 }
