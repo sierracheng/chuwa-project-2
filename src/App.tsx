@@ -16,19 +16,19 @@ function App() {
       <Routes>
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/hr/employees" 
-        element={
-          <Layout>
-            <EmployeeProfilesPage />
-          </Layout>
-        } 
+        <Route path="/hr/employees"
+          element={
+            <Layout>
+              <EmployeeProfilesPage />
+            </Layout>
+          }
         />
-        <Route path="/hr/visa" 
-        element={
-          <Layout>
-            <VisaStatusPage />
-          </Layout>
-        } 
+        <Route path="/hr/visa"
+          element={
+            <Layout>
+              <VisaStatusPage />
+            </Layout>
+          }
         />
       </Routes>
     </BrowserRouter>
