@@ -1,14 +1,14 @@
-import { Routes, Route, BrowserRouter } from 'react-router-dom'
-import './App.css'
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import "./App.css";
 import {
   SignUpPage,
   LoginPage,
   EmployeeProfilesPage,
   VisaStatusPage,
-} from './pages'
-import { NavigationBar } from './components/NavigationBar'
-import { Layout } from './components/Layout'
-
+  OnboardingPage,
+} from "./pages";
+import { NavigationBar } from "./components/NavigationBar";
+import { Layout } from "./components/Layout";
 
 function App() {
   return (
@@ -16,23 +16,26 @@ function App() {
       <Routes>
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/hr/employees" 
-        element={
-          <Layout>
-            <EmployeeProfilesPage />
-          </Layout>
-        } 
+        <Route
+          path="/hr/employees"
+          element={
+            <Layout>
+              <EmployeeProfilesPage />
+            </Layout>
+          }
         />
-        <Route path="/hr/visa" 
-        element={
-          <Layout>
-            <VisaStatusPage />
-          </Layout>
-        } 
+        <Route
+          path="/hr/visa"
+          element={
+            <Layout>
+              <VisaStatusPage />
+            </Layout>
+          }
         />
+        <Route path="/onboarding" element={<OnboardingPage />} />
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

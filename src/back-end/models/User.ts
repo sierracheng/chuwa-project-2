@@ -41,6 +41,7 @@ export interface IUser extends Document {
 
 const UserSchema = new Schema<IUser>(
   {
+    // This will be created when user first time sign up
     username: {
       type: String,
       required: true,
@@ -49,6 +50,9 @@ const UserSchema = new Schema<IUser>(
     },
     password: { type: String, required: true, match: PASSWORD_REGEX },
     email: { type: String, required: true, unique: true, match: EMAIL_REGEX },
+    ///////////////////////////////////////////////////////////
+
+    // This will be updated when user first time login to the system
     realName: PersonNameSchema,
     ssn: { type: String, match: SSN_REGEX },
     dateOfBirth: { type: Date },
@@ -71,6 +75,7 @@ const UserSchema = new Schema<IUser>(
       enum: ["HR", "Employee"],
       default: "Employee",
     },
+    ///////////////////////////////////////////////////////////
   },
   { timestamps: true }
 );
