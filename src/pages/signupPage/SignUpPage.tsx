@@ -62,12 +62,16 @@ export function SignUpPage() {
 
     try {
       const response = await createSimpleUserAPI(userData);
-      console.log(response.success);
-      if (response.success) {
+      console.log('FullResponse: ', response);
+      if (!response.success) {
+        console.error("Failed to create user:", response.message);
+      } else if (response.success) {
         setSignupSuccess(true);
         setTimeout(() => {
           navigate("/login");
         }, 3000);
+      } else {
+        console.error("Unexpected response format:", response);
       }
     } catch (error) {
       console.error("Error creating user:", error);

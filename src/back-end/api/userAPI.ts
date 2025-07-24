@@ -19,11 +19,16 @@ export async function createSimpleUserAPI(input: {
         }),
     });
     const data = await response.json();
+    console.log("Response from createSimpleUserAPI:", data);
     if (data.errors) {
         console.error("Error creating user:", data.errors);
         return { success: false, message: "Failed to create user" };
     }
-    return data;
+    return {
+        success: true,
+        message: "User created successfully",
+        data: data.data.createSimpleUser,
+    };
 };
 
 export async function findUserAPI(input: {
