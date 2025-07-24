@@ -155,7 +155,6 @@ export const typeDefs = gql`
         getAllUsers: [User!]!
         getUserById(id: ID!): User!
         getVisaStatusManagementByUserId(userId: ID!): VisaStatusManagement
-        getOnboardingApplicationByUserId(userId: ID!): OnboardingApplication
         getAllVisaStatuses: [VisaStatusManagement!]!
         getInProgressVisaEmployees: [VisaEmployee!]!
         getCompletedVisaEmployees: [VisaEmployee!]!
@@ -268,20 +267,6 @@ export const typeDefs = gql`
             input: RegisterInput!
         ): User!
         deleteUser(id: ID!): User!
-        createOnboardingApplication(
-            input: OnBoardingApplicationInput!
-        ): OnboardingApplication!
-        updateOnboardingApplication(
-            userId: ID!
-            status: Status!
-            feedback: String
-            input: OnBoardingApplicationInput!
-        ): OnboardingApplication!
-        updateApplicationStatus(
-            userId: ID!
-            status: Status!
-            feedback: String
-        ): OnboardingApplication!
         createVisaStatusManagement(
             userId: ID!
         ): VisaStatusManagement!
