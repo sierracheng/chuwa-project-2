@@ -43,6 +43,14 @@ export const typeDefs = gql`
         email: String!
     }
     
+    type Address {
+        street: String
+        building: String
+        city: String
+        state: String
+        zip: String
+    }
+
     type Employment {
         visaTitle: VisaType!
         startDate: Date!
@@ -134,7 +142,7 @@ export const typeDefs = gql`
         ssn: String!
         dateOfBirth: Date!
         gender: Gender!
-        address: String!
+        address: Address!
         contactInfo: ContactInfo!
         employment: Employment!
         emergencyContact: EmergencyContact!
