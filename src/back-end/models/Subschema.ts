@@ -13,6 +13,17 @@ export const PersonNameSchema = new Schema(
   { _id: false }
 );
 
+export const AddressSchema = new Schema(
+  {
+    street: { type: String },
+    building: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zip: { type: String },
+  },
+  { _id: false }
+);
+
 /**
  * Sub-Schema for Person's Contact Information
  */

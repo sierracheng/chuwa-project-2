@@ -25,6 +25,14 @@ export interface IPersonName {
   preferredName?: string;
 }
 
+export interface IAddress {
+  street: string;
+  building: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
 export interface IContactInfo {
   cellPhone: string;
   workPhone?: string;

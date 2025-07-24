@@ -7,6 +7,7 @@ import {
 } from "../../utils/util";
 import type { IOnboardingApplication } from "./OnboardingApplication";
 import {
+  AddressSchema,
   ContactInfoSchema,
   EmergencyContactSchema,
   PersonNameSchema,
@@ -17,6 +18,7 @@ import type {
   IEmployment,
   IEmergencyContact,
   GenderType,
+  IAddress,
 } from "./Types";
 import { Gender, Visa } from "./Types";
 
@@ -29,7 +31,7 @@ export interface IUser extends Document {
   ssn: string; // Should match xxx-xx-xxxx format
   dateOfBirth: Date;
   gender: GenderType; // Should be one of the type Male, Female, Other
-  address: string;
+  address: IAddress;
   contactInfo: IContactInfo;
   employment: IEmployment;
   emergencyContact: IEmergencyContact;
@@ -51,7 +53,7 @@ const UserSchema = new Schema<IUser>(
     ssn: { type: String, match: SSN_REGEX },
     dateOfBirth: { type: Date },
     gender: { type: String, enum: Object.values(Gender) },
-    address: { type: String },
+    address: AddressSchema,
     contactInfo: ContactInfoSchema,
     employment: {
       visaTitle: { type: String, enum: Object.values(Visa) },
