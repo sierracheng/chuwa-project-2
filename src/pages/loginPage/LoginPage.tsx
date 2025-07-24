@@ -17,7 +17,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "../../components/Card/Card";
 import { PASSWORD_REGEX } from "../../utils/util";
-import { createSimpleUserAPI } from "../../back-end/api/userAPI";
+import { findUserAPI } from "../../back-end/api/userAPI";
 
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -31,30 +31,35 @@ const formSchema = z.object({
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
-  const email = searchParams.get("email");
 
-  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
       password: "",
-      confirm_password: "",
-      email: email || "",
     },
   });
 
-
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const userData = {
-      token: token || '',
+    const response = await findUserAPI({
       username: data.username,
       password: data.password,
-      email: data.email,
-    };
+    })
+
+    if (response.success) {
+      setLoginSuccess(true)
+      localStorage.setItem("token", response.token)
+
+      if (response.user.role === "HR") {
+        navigate("/hr/employees")
+      } else {
+        navigate("/profile")
+      }
+    } else {
+      alert(response.message || "Login failed")
+    }
   }
 
   return (
@@ -74,9 +79,9 @@ export function LoginPage() {
       </div>
       <div className='relative z-10 flex min-h-screen items-center justify-center px-4'>
         <Card className="w-full min-h-[400px] max-w-md p-6 flex flex-col items-center justify-center ">
-          {signupSuccess && (
+          {loginSuccess && (
             <div className="mb-4 rounded-md border border-green-500 bg-green-50 p-4 text-green-700 text-center font-medium">
-              🎉 Account created! Redirecting to login page...
+              🎉 Login success! Redirecting to home page...
             </div>
           )}
           <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">Sign in to your account</h2>

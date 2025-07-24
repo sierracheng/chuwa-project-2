@@ -43,6 +43,30 @@ export const userResolvers = {
       return newUser;
     },
 
+    findUser: async (_: any, { input }: { input: { username: string; password: string } }) => {
+      const user = await User.findOne({ username: input.username })
+
+      if (!user) {
+        throw new Error("Invalid username or password")
+      }
+
+      // NOTE: Use bcrypt if password is hashed — here assuming plain text for simplicity
+      const isValidPassword = user.password === input.password
+      if (!isValidPassword) {
+        throw new Error("Invalid username or password")
+      }
+
+      // Example token — replace with JWT in real use
+      const token = `mock-token-${user._id}`
+
+      return {
+        success: true,
+        message: "Login successful",
+        token,
+        user,
+      }
+    },
+
     updateUser: async (_: any, { id, input }: { id: string; input: any }) => {
       const user = await User.findById(id);
       if (!user) throw new Error("User not found");

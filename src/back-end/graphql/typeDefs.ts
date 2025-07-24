@@ -1,4 +1,4 @@
-import {gql} from "graphql-tag";
+import { gql } from "graphql-tag";
 
 export const typeDefs = gql`
     scalar Date
@@ -246,10 +246,23 @@ export const typeDefs = gql`
         feedback: String
     }
 
+    input LoginInput {
+    username: String!
+    password: String!
+    }
+
+    type LoginResponse {
+    success: Boolean!
+    message: String
+    token: String
+    user: User
+    }
+
     type Mutation {
         createSimpleUser(
             input: SimpleUserInput!
         ): User!
+        findUser(input: LoginInput!): LoginResponse!
         updateUser(
             id: ID!
             input: RegisterInput!
