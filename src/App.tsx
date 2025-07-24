@@ -4,6 +4,7 @@ import {
   SignUpPage,
   LoginPage,
   EmployeeProfilesPage,
+  VisaStatusPage,
 } from './pages'
 import { NavigationBar } from './components/NavigationBar'
 import { Layout } from './components/Layout'
@@ -19,6 +20,13 @@ function App() {
         element={
           <Layout>
             <EmployeeProfilesPage />
+          </Layout>
+        } 
+        />
+        <Route path="/hr/visa" 
+        element={
+          <Layout>
+            <VisaStatusPage />
           </Layout>
         } 
         />

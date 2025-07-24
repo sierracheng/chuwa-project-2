@@ -1,3 +1,4 @@
 export * from './signupPage'
 export * from './loginPage'
 export * from './employeeProfilesPage';
+export * from './visaStatusPage';
