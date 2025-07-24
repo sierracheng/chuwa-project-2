@@ -100,6 +100,31 @@ export const typeDefs = gql`
         updatedAt: Date
     }
 
+    type VisaEmployee {
+        _id: ID!
+        userId: ID!
+        realName: PersonName!
+        email: String!
+        username: String!
+        workAuth: VisaType!
+        visaSteps: VisaEmployeeSteps!
+        nextStep: String!
+    }
+    
+    type VisaEmployeeSteps {
+        optReceipt: VisaStep
+        optEAD: VisaStep
+        i983: VisaStep
+        i20: VisaStep
+    }
+    
+    type BulkUpdateResponse {
+        success: Boolean!
+        userId: ID!
+        visastatus: VisaStatusManagement
+        error: String
+    }
+
     type User {
         _id: ID!
         username: String!
@@ -123,6 +148,10 @@ export const typeDefs = gql`
         getUserById(id: ID!): User!
         getVisaStatusManagementByUserId(userId: ID!): VisaStatusManagement
         getOnboardingApplicationByUserId(userId: ID!): OnboardingApplication
+        getAllVisaStatuses: [VisaStatusManagement!]!
+        getInProgressVisaEmployees: [VisaEmployee!]!
+        getCompletedVisaEmployees: [VisaEmployee!]!
+        getVisaEmployeesByStatus(status: Status!): [VisaEmployee!]!
     }
 
     input SimpleUserInput {
@@ -201,6 +230,13 @@ export const typeDefs = gql`
         url: String
         uploadedAt: Date
     }
+    
+    input BulkUpdateInput {
+        userId: ID!
+        stepName: String!
+        status: Status!
+        feedback: String
+    }
 
     type Mutation {
         createSimpleUser(
@@ -232,6 +268,12 @@ export const typeDefs = gql`
             userId: ID!
             stepName: String!
             data: VisaStepInput!
+        ): VisaStatusManagement!
+        bulkUpdateVisaStatus(
+            input: [BulkUpdateInput!]!
+        ): [BulkUpdateResponse!]!
+        deleteVisaStatusManagement(
+            userId: ID!
         ): VisaStatusManagement!
     }
 `;
