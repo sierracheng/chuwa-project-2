@@ -13,11 +13,13 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "../../components/Card/Card";
 import { PASSWORD_REGEX } from "../../utils/util";
 import { createSimpleUserAPI } from "../../back-end/api/userAPI";
+import { ErrorPage } from "../errorPage/ErrorPage"
+import { validateTokenAPI } from "@/back-end/api/validateTokenAPI"
 
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -71,6 +73,26 @@ export function SignUpPage() {
       console.error("Error creating user:", error);
     }
   };
+
+  const [isTokenValid, setIsTokenValid] = useState<boolean | null>(null);
+  useEffect(() => {
+    const validate = async () => {
+      if (!token) {
+        setIsTokenValid(false);
+        return;
+      }
+
+      const valid = await validateTokenAPI(token);
+      setIsTokenValid(valid);
+    };
+
+    validate();
+  }, [token]);
+
+  if (isTokenValid === false) return <ErrorPage />;
+  if (isTokenValid === null) return null;
+
+
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden">

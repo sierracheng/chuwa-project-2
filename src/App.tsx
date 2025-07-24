@@ -5,6 +5,7 @@ import {
   LoginPage,
   EmployeeProfilesPage,
   VisaStatusPage,
+  ErrorPage,
 } from './pages'
 import { NavigationBar } from './components/NavigationBar'
 import { Layout } from './components/Layout'
@@ -14,6 +15,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route
+          path="/error"
+          element={
+            <ErrorPage />
+          }
+        />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/hr/employees"

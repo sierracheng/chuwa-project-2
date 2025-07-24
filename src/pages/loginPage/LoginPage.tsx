@@ -53,9 +53,9 @@ export function LoginPage() {
       localStorage.setItem("token", response.token)
 
       if (response.user.role === "HR") {
-        navigate("/hr/employees")
+        navigate("/hr/homepage")
       } else {
-        navigate("/profile")
+        navigate("/emploeyee/homepage")
       }
     } else {
       alert(response.message || "Login failed")
