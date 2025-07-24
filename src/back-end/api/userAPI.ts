@@ -44,8 +44,8 @@ export async function findUserAPI(input: {
     const data = await response.json()
 
     if (data.errors) {
-        console.error("Login error:", data.errors)
-        return { success: false, message: "Login failed" }
+        console.error("Error finding user:", data.errors)
+        return { success: false, message: "Failed to find user" }
     }
 
     return data.data.login

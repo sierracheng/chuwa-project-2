@@ -11,6 +11,8 @@ import OnboardingApplicationRoutes from "./routes/OnboardingApplicationRoutes";
 import UserRoutes from "./routes/UserRoutes";
 import VisaStatusManagementRoutes from "./routes/VisaStatusManagementRoutes";
 import RegistrationTokenRoutes from "./routes/RegistrationTokenRoutes";
+import ValidateTokenRoutes from "./routes/ValidateTokenRoutes";
+
 
 const app = express();
 app.use(cors());
@@ -43,6 +45,8 @@ async function startApolloServer() {
   app.use("/", OnboardingApplicationRoutes);
   app.use("/", VisaStatusManagementRoutes);
   app.use("/", RegistrationTokenRoutes);
+  app.use("/api", ValidateTokenRoutes);
+
 
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
