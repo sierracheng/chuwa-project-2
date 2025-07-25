@@ -7,10 +7,10 @@ import {
 
 const router: Router = express.Router();
 
-router.post("/visa-status/:id", (req, res) => getVisaStatus(req, res));
+router.post("/visa/:id", (req, res) => getVisaStatus(req, res));
 
-router.post("/visa/upload/:userId/:step",
-  upload.single("pdf"),
+router.post("/visa/:userId/:step/upload",
+  upload.single("document"),
   uploadVisaSteps
 );
 

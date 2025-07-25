@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectRole } from "@/redux/features/authenticate/authenticateSlice";
+import { useSelector, useDispatch } from "react-redux";
+import { selectRole, clearAuthenticateState } from "@/redux/features/authenticate/authenticateSlice";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
+import { logoutUser } from "@/back-end/api/auth";
 import {
   IconArrowLeft,
   IconCategory,
@@ -13,15 +14,19 @@ import {
   IconUser,
   IconFileText,
 } from "@tabler/icons-react";
-
 export function NavigationBar() {
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
   const role = useSelector(selectRole);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = async () => {
     try {
+      console.log("Logging out...");
       // await logoutAPI;
+      logoutUser();
+      dispatch(clearAuthenticateState());
+      console.log("Logout successful");
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -77,16 +82,7 @@ export function NavigationBar() {
     },
   ];
 
-  const logoutLink = {
-    label: "Logout",
-    href: "/login",
-    icon: (
-      <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
-    ),
-    onClick: handleLogout,
-  };
-
-  const links = role === "HR" ? [...hrLinks, logoutLink] : [...employeeLinks, logoutLink];
+  const links = role === "HR" ? [...hrLinks] : [...employeeLinks];
 
   return (
     <Sidebar open={open} setOpen={setOpen}>
@@ -114,6 +110,15 @@ export function NavigationBar() {
             {links.map((link, idx) => (
               <SidebarLink key={idx} link={link} />
             ))}
+            </div>
+          <div className="mt-auto">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-neutral-700 dark:text-neutral-200"
+            >
+              <IconArrowLeft className="h-5 w-5 shrink-0" />
+              {open && <span>Logout</span>}
+            </button>
           </div>
         </div>
       </SidebarBody>

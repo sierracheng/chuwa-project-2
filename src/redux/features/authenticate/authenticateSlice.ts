@@ -32,10 +32,14 @@ const authenticateSlice = createSlice({
     setId(state, action: PayloadAction<string>) {
       state.id = action.payload;
     },
+    clearAuthenticateState(state) {
+      console.log("Clearing authenticate state");
+      return initialState;
   },
+},
 });
 
-export const { setIsLogin, setRole, setUsername, setId } =
+export const { setIsLogin, setRole, setUsername, setId, clearAuthenticateState } =
   authenticateSlice.actions;
 
 export const selectIsLogin = (state: RootState) => state.authenticate.isLogin;

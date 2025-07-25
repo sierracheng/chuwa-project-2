@@ -22,6 +22,7 @@ import { useDispatch } from "react-redux";
 import {
   setIsLogin,
   setRole,
+  setId,
 } from "@/redux/features/authenticate/authenticateSlice";
 import Background from "@/components/Background";
 
@@ -54,9 +55,13 @@ export function LoginPage() {
     console.log(response);
 
     if (response.success) {
+      const userId = response.token.replace("mock-token-", "");
+      
+      console.log('extract UserId:', userId);// Assuming the response contains user ID
       setLoginSuccess(true);
       dispatch(setIsLogin(true));
       dispatch(setRole(response.user.role));
+      dispatch(setId(userId)); // Use the extracted userId
       localStorage.setItem("token", response.token);
 
       if (response.user.role === "HR") {

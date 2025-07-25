@@ -69,7 +69,11 @@ export const userResolvers = {
         success: true,
         message: "Login successful",
         token,
-        user,
+        user: {
+          _id: user._id.toString(),
+          username: user.username,
+          role: user.role,
+        },
       }
     },
 
