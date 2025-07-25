@@ -44,7 +44,6 @@ export const userResolvers = {
     },
 
     findUser: async (_: any, { input }: { input: { username: string; password: string } }) => {
-      console.log("🔍 Received login input:", input); // log input from frontend
 
       const user = await User.findOne({ username: input.username })
 
@@ -52,17 +51,11 @@ export const userResolvers = {
         throw new Error("Invalid username or password")
       }
 
-      console.log("✅ Found user:", user);
-
-
-      // NOTE: Use bcrypt if password is hashed — here assuming plain text for simplicity
       const isValidPassword = user.password === input.password
       if (!isValidPassword) {
-        console.log("❌ Password does not match. Entered:", input.password, "Expected:", user.password);
         throw new Error("Invalid username or password")
       }
 
-      // Example token — replace with JWT in real use
       const token = `mock-token-${user._id}`
 
       return {
