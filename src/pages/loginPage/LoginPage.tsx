@@ -14,25 +14,23 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Card } from "../../components/Card/Card";
 import { PASSWORD_REGEX } from "../../utils/util";
 import { findUserAPI } from "../../back-end/api/userAPI";
+import { useDispatch } from "react-redux"
+import { setIsLogin, setRole } from "@/redux/features/authenticate/authenticateSlice"
 
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().regex(PASSWORD_REGEX, "Invalid password input"),
-  confirm_password: z.string().min(1, "Confirm password is required"),
-  email: z.email("Invalid email address"),
-}).refine((data) => data.password === data.confirm_password, {
-  message: "Passwords do not match",
-  path: ["confirm_password"],
 });
 
 export function LoginPage() {
   const navigate = useNavigate();
 
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const dispatch = useDispatch();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,19 +41,24 @@ export function LoginPage() {
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const response = await findUserAPI({
+    const userData = {
       username: data.username,
       password: data.password,
-    })
+    };
+
+    const response = await findUserAPI(userData)
+    console.log(response)
 
     if (response.success) {
       setLoginSuccess(true)
+      dispatch(setIsLogin(true))
+      dispatch(setRole(response.user.role))
       localStorage.setItem("token", response.token)
 
       if (response.user.role === "HR") {
         navigate("/hr/homepage")
       } else {
-        navigate("/emploeyee/homepage")
+        navigate("/employee/homepage")
       }
     } else {
       alert(response.message || "Login failed")

@@ -15,18 +15,18 @@ import {
 } from "@tabler/icons-react";
 
 export function NavigationBar() {
-    const [open, setOpen] = useState(false);
-    const navigate = useNavigate();
-    const role = useSelector(selectRole);
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const role = useSelector(selectRole);
 
-    const handleLogout = async () => {
-    try{
-        // await logoutAPI;
-        navigate("/login");
+  const handleLogout = async () => {
+    try {
+      // await logoutAPI;
+      navigate("/login");
     } catch (error) {
-        console.error("Logout failed:", error);
+      console.error("Logout failed:", error);
 
-        alert("Logout failed. Please try again.");
+      alert("Logout failed. Please try again.");
     }
   }
   const hrLinks = [
@@ -63,7 +63,7 @@ export function NavigationBar() {
   const employeeLinks = [
     {
       label: "Personal Information",
-      href: "/employee/profile",
+      href: "/employee/homepage",
       icon: (
         <IconUser className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
@@ -89,34 +89,34 @@ export function NavigationBar() {
   const links = role === "HR" ? [...hrLinks, logoutLink] : [...employeeLinks, logoutLink];
 
   return (
-      <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="justify-between gap-10">
-          <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
-            {open && <img src="/images/SmallLogo.png" alt="Logo" className="h-7 w-20 mt-8 ml-1" />}
-            <div className="flex flex-col items-left justify-between mt-5">
-              <SidebarLink
-                link={{
-                    label: "Profile",
-                    href: "/profile",
-                    icon: (
-                    <img
-                        src="https://assets.aceternity.com/manu.png"
-                        className="rounded-full"
-                        width={50}
-                        height={50}
-                        alt="Avatar"
-                    />
-                    ),
-                }}
-                />
+    <Sidebar open={open} setOpen={setOpen}>
+      <SidebarBody className="justify-between gap-10">
+        <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
+          {open && <img src="/images/SmallLogo.png" alt="Logo" className="h-7 w-20 mt-8 ml-1" />}
+          <div className="flex flex-col items-left justify-between mt-5">
+            <SidebarLink
+              link={{
+                label: "Profile",
+                href: "/employee/homepage",
+                icon: (
+                  <img
+                    src="https://assets.aceternity.com/manu.png"
+                    className="rounded-full"
+                    width={50}
+                    height={50}
+                    alt="Avatar"
+                  />
+                ),
+              }}
+            />
           </div>
-            <div className="mt-2 flex flex-col gap-2">
-              {links.map((link, idx) => (
-                <SidebarLink key={idx} link={link} />
-              ))}
-            </div>
+          <div className="mt-2 flex flex-col gap-2">
+            {links.map((link, idx) => (
+              <SidebarLink key={idx} link={link} />
+            ))}
           </div>
-        </SidebarBody>
-      </Sidebar>
+        </div>
+      </SidebarBody>
+    </Sidebar>
   );
 }
