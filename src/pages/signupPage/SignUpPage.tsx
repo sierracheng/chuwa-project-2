@@ -5,32 +5,34 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { PasswordInput } from "@/components/ui/password-input"
-import { Button } from "@/components/ui/button"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card } from "../../components/Card/Card";
 import { PASSWORD_REGEX } from "../../utils/util";
 import { createSimpleUserAPI } from "../../back-end/api/userAPI";
-import { ErrorPage } from "../errorPage/ErrorPage"
-import { validateTokenAPI } from "@/back-end/api/validateTokenAPI"
+import { ErrorPage } from "../errorPage/ErrorPage";
+import { validateTokenAPI } from "@/back-end/api/validateTokenAPI";
+import Background from "@/components/Background";
 
-const formSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  password: z.string().regex(PASSWORD_REGEX, "Invalid password input"),
-  confirm_password: z.string().min(1, "Confirm password is required"),
-  email: z.email("Invalid email address"),
-}).refine((data) => data.password === data.confirm_password, {
-  message: "Passwords do not match",
-  path: ["confirm_password"],
-});
-
+const formSchema = z
+  .object({
+    username: z.string().min(1, "Username is required"),
+    password: z.string().regex(PASSWORD_REGEX, "Invalid password input"),
+    confirm_password: z.string().min(1, "Confirm password is required"),
+    email: z.email("Invalid email address"),
+  })
+  .refine((data) => data.password === data.confirm_password, {
+    message: "Passwords do not match",
+    path: ["confirm_password"],
+  });
 
 export function SignUpPage() {
   const navigate = useNavigate();
@@ -51,10 +53,9 @@ export function SignUpPage() {
     },
   });
 
-
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     const userData = {
-      token: token || '',
+      token: token || "",
       username: data.username,
       password: data.password,
       email: data.email,
@@ -96,31 +97,21 @@ export function SignUpPage() {
   if (isTokenValid === false) return <ErrorPage />;
   if (isTokenValid === null) return null;
 
-
-
   return (
-    <div className="relative w-full min-h-screen overflow-hidden">
-      <div className="absolute fixed inset-0">
-        <img
-          src="/images/signup-bg.png"
-          alt="Background"
-          className="absolute top-0 left-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-blue-900/50 backdrop-blur-sm"></div>
-        <img
-          src="/images/LargeLogo.png"
-          alt="Logo"
-          className="absolute top-0 left-0 h-12 w-auto mt-4 ml-4 sm:h-20"
-        />
+    <div className="flex flex-col relative w-full min-h-screen overflow-hidden">
+      <div className="inset-0">
+        <Background />
       </div>
-      <div className='relative z-10 flex min-h-screen items-center justify-center px-4'>
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
         <Card className="w-full max-w-md p-6 flex flex-col items-center justify-center">
           {signupSuccess && (
             <div className="mb-4 rounded-md border border-green-500 bg-green-50 p-4 text-green-700 text-center font-medium">
               🎉 Account created! Redirecting to login page...
             </div>
           )}
-          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">Register an account</h2>
+          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">
+            Register an account
+          </h2>
 
           <Form {...form}>
             <form
@@ -134,7 +125,13 @@ export function SignUpPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type='email' {...field} readOnly disabled className="bg-gray-100 cursor-not-allowed" />
+                      <Input
+                        type="email"
+                        {...field}
+                        readOnly
+                        disabled
+                        className="bg-gray-100 cursor-not-allowed"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -184,7 +181,6 @@ export function SignUpPage() {
               <Button type="submit" className="w-full bg-[#2D68FE]">
                 Sign Up
               </Button>
-
             </form>
           </Form>
         </Card>

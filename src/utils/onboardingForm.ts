@@ -1,13 +1,74 @@
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { SSN_REGEX } from "./util";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+export const formSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  middleName: z.string(),
+  lastName: z.string().min(1, "Last name is required"),
+  preferredName: z.string(),
+  profilePicture: z
+    .instanceof(File)
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Profile picture must be less than 5MB",
+    }),
+  address: z.object({
+    street: z.string().min(1, "Street is required"),
+    building: z.string(),
+    city: z.string().min(1, "City is required"),
+    state: z.string().min(1, "State is required"),
+    zip: z.string().min(1, "Zip is required"),
+  }),
+  cellPhone: z.string().min(1, "Cell phone is required"),
+  workPhone: z.string(),
+  email: z.string(),
+  ssn: z.string().min(1, "SSN is required"),
+  dob: z.string().min(1, "Date of birth is required"),
+  gender: z.string().min(1, "Gender is required"),
+  citizen: z.string().min(1, "Citizen is required"),
+  workAuth: z.object({
+    type: z.string().min(1, "Work authorization type is required"),
+    startDate: z.string().min(1, "Start date is required"),
+    endDate: z.string().min(1, "End date is required"),
+    optReceipt: z.string(),
+    otherVisaTitle: z.string(),
+  }),
+  reference: z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    middleName: z.string(),
+    cellPhone: z.string(),
+    workPhone: z.string(),
+    email: z.string(),
+  }),
+  emergencyContacts: z.array(
+    z.object({
+      firstName: z.string().min(1, "First name is required"),
+      lastName: z.string().min(1, "Last name is required"),
+      middleName: z.string(),
+      cellPhone: z.string().min(1, "Cell phone is required"),
+      workPhone: z.string(),
+      email: z.string(),
+      relationship: z.string(),
+    })
+  ),
+  documents: z.object({
+    profilePicture: z.string(),
+    driverLicense: z.string(),
+    workAuth: z.string(),
+  }),
+});
 
 export const useOnboardingForm = () =>
-  useForm({
+  useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
       middleName: "",
       preferredName: "",
-      profilePicture: null,
+      profilePicture: new File([], ""),
       address: {
         street: "",
         building: "",
@@ -26,32 +87,32 @@ export const useOnboardingForm = () =>
         type: "",
         startDate: "",
         endDate: "",
-        optReceipt: null,
+        optReceipt: "",
         otherVisaTitle: "",
-        documents: [],
       },
       reference: {
         firstName: "",
         lastName: "",
         middleName: "",
-        phone: "",
+        cellPhone: "",
+        workPhone: "",
         email: "",
-        relationship: "",
       },
       emergencyContacts: [
         {
           firstName: "",
           lastName: "",
           middleName: "",
-          phone: "",
+          cellPhone: "",
+          workPhone: "",
           email: "",
           relationship: "",
         },
       ],
       documents: {
-        profilePicture: null,
-        driverLicense: null,
-        workAuth: null,
+        profilePicture: "",
+        driverLicense: "",
+        workAuth: "",
       },
     },
   });

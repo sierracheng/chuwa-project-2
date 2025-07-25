@@ -16,7 +16,6 @@ export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
 
 /**
  * SSN must be xxx-xx-xxxx
- * Must be number
  */
 export const SSN_REGEX = /^\d{3}-\d{2}-\d{4}$/;
 

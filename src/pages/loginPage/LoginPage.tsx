@@ -5,21 +5,25 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { PasswordInput } from "@/components/ui/password-input"
-import { Button } from "@/components/ui/button"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Button } from "@/components/ui/button";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../../components/Card/Card";
 import { PASSWORD_REGEX } from "../../utils/util";
 import { findUserAPI } from "../../back-end/api/userAPI";
-import { useDispatch } from "react-redux"
-import { setIsLogin, setRole } from "@/redux/features/authenticate/authenticateSlice"
+import { useDispatch } from "react-redux";
+import {
+  setIsLogin,
+  setRole,
+} from "@/redux/features/authenticate/authenticateSlice";
+import Background from "@/components/Background";
 
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -46,55 +50,46 @@ export function LoginPage() {
       password: data.password,
     };
 
-    const response = await findUserAPI(userData)
-    console.log(response)
+    const response = await findUserAPI(userData);
+    console.log(response);
 
     if (response.success) {
-      setLoginSuccess(true)
-      dispatch(setIsLogin(true))
-      dispatch(setRole(response.user.role))
-      localStorage.setItem("token", response.token)
+      setLoginSuccess(true);
+      dispatch(setIsLogin(true));
+      dispatch(setRole(response.user.role));
+      localStorage.setItem("token", response.token);
 
       if (response.user.role === "HR") {
-        navigate("/hr/homepage")
+        navigate("/hr/homepage");
       } else {
-        navigate("/employee/homepage")
+        navigate("/employee/homepage");
       }
     } else {
-      alert(response.message || "Login failed")
+      alert(response.message || "Login failed");
     }
-  }
+  };
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden">
-      <div className="absolute fixed inset-0">
-        <img
-          src="/images/signup-bg.png"
-          alt="Background"
-          className="absolute top-0 left-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-blue-900/50 backdrop-blur-sm"></div>
-        <img
-          src="/images/LargeLogo.png"
-          alt="Logo"
-          className="absolute top-0 left-0 h-12 w-auto mt-4 ml-4 sm:h-20"
-        />
+    <div className="flex flex-col relative w-full min-h-screen overflow-hidden">
+      <div className="inset-0">
+        <Background />
       </div>
-      <div className='relative z-10 flex min-h-screen items-center justify-center px-4'>
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
         <Card className="w-full min-h-[400px] max-w-md p-6 flex flex-col items-center justify-center ">
           {loginSuccess && (
             <div className="mb-4 rounded-md border border-green-500 bg-green-50 p-4 text-green-700 text-center font-medium">
               🎉 Login success! Redirecting to home page...
             </div>
           )}
-          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">Sign in to your account</h2>
+          <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">
+            Sign in to your account
+          </h2>
 
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-4 w-full flex flex-col gap-5"
             >
-
               <FormField
                 control={form.control}
                 name="username"
@@ -126,7 +121,6 @@ export function LoginPage() {
               <Button type="submit" className="w-full bg-[#2D68FE]">
                 Sign In
               </Button>
-
             </form>
           </Form>
         </Card>

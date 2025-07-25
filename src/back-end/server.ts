@@ -12,13 +12,13 @@ import UserRoutes from "./routes/UserRoutes";
 import VisaStatusManagementRoutes from "./routes/VisaStatusManagementRoutes";
 import RegistrationTokenRoutes from "./routes/RegistrationTokenRoutes";
 import ValidateTokenRoutes from "./routes/ValidateTokenRoutes";
-
+import UploadFileRoutes from "./routes/UploadFile";
 
 const app = express();
 app.use(cors());
 const PORT = process.env.PORT || 3004;
 
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
 
 async function startApolloServer() {
   await connectDB();
@@ -46,7 +46,7 @@ async function startApolloServer() {
   app.use("/", VisaStatusManagementRoutes);
   app.use("/", RegistrationTokenRoutes);
   app.use("/", ValidateTokenRoutes);
-
+  app.use("/", UploadFileRoutes);
 
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
