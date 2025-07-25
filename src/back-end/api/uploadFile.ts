@@ -5,7 +5,7 @@ export async function uploadFile(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      resolve(result.split(",")[1]); // remove `data:*/*;base64,`
+      resolve(result.split(",")[1]);
     };
     reader.onerror = reject;
     reader.readAsDataURL(file);
