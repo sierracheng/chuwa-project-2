@@ -7,7 +7,8 @@ import {
   VisaStatusPage,
   OnboardingPage,
   ErrorPage,
-  PersonalInformationPage
+  PersonalInformationPage,
+  VisaStatusEmployeePage
 } from "./pages";
 import { Layout } from "./components/Layout";
 import { HRProtectedRoutes } from "./routes/HRProtectedRoutes";
@@ -48,7 +49,7 @@ function App() {
             path="visa"
             element={
               <Layout>
-                <VisaStatusPage />
+                <VisaStatusEmployeePage />
               </Layout>
             }
           />
@@ -64,8 +65,15 @@ function App() {
               </Layout>
             }
           />
-        </Route>
-
+          <Route
+            path="/employee/visa"
+            element={
+              <Layout>
+                <VisaStatusEmployeePage />
+              </Layout>
+            }
+            />
+          </Route>
       </Routes>
     </BrowserRouter >
   );

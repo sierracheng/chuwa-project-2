@@ -1,32 +1,17 @@
 import express, { Router } from "express";
+import { upload } from "../middlewares/multer";
 import {
-  createVisaStatusManagement,
-  updateVisaStatusManagement,
-  getVisaStatusManagement,
-  deleteVisaStatusManagement,
+  getVisaStatus,
+  uploadVisaSteps,
 } from "../controllers/VisaStatusManagementControllers";
 
 const router: Router = express.Router();
 
-// TODO:
-// 1. POST: Create a new visa status management
-router.post("/visa-status-management", (req, res) => {
-  createVisaStatusManagement(req, res);
-});
+router.post("/visa-status/:id", (req, res) => getVisaStatus(req, res));
 
-// 2. PUT: Update an existing visa status management
-router.put("/visa-status-management/:id", (req, res) => {
-  updateVisaStatusManagement(req, res);
-});
-
-// 3. GET: Get an existing visa status management
-router.get("/visa-status-management/:id", (req, res) => {
-  getVisaStatusManagement(req, res);
-});
-
-// 4. DELETE: Delete an existing visa status management
-router.delete("/visa-status-management/:id", (req, res) => {
-  deleteVisaStatusManagement(req, res);
-});
+router.post("/visa/upload/:userId/:step",
+  upload.single("pdf"),
+  uploadVisaSteps
+);
 
 export default router;
