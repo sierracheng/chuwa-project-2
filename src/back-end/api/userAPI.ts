@@ -35,7 +35,6 @@ export async function findUserAPI(input: {
     username: string
     password: string
 }) {
-    console.log("Sending login input to GraphQL:", input); // 🔍 log here
 
     const response = await fetch("http://localhost:3004/graphql", {
         method: "POST",
@@ -63,7 +62,7 @@ export async function findUserVisaTypeAPI(input: {
 }) {
     const url = `http://localhost:3004/${input.id}/visa-type`;
     console.log('Making request to URL:', url);
-    
+
     const response = await fetch(url, {
         method: "GET",
         headers: {
