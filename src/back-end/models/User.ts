@@ -63,6 +63,7 @@ const UserSchema = new Schema<IUser>(
       visaTitle: { type: String, enum: Object.values(Visa) },
       startDate: { type: Date },
       endDate: { type: Date },
+      // TODO: Calculate days remaining
       daysRemaining: { type: Number, default: 0 },
     },
     emergencyContact: EmergencyContactSchema,

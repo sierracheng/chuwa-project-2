@@ -29,9 +29,13 @@ export const formSchema = z.object({
   citizen: z.string().min(1, "Citizen is required"),
   workAuth: z.object({
     type: z.string().min(1, "Work authorization type is required"),
-    startDate: z.string().min(1, "Start date is required"),
-    endDate: z.string().min(1, "End date is required"),
-    optReceipt: z.string(),
+    startDate: z.string(),
+    endDate: z.string(),
+    optReceipt: z
+      .instanceof(File)
+      .refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "OPT receipt must be less than 5MB",
+      }),
     otherVisaTitle: z.string(),
   }),
   reference: z.object({
@@ -54,9 +58,21 @@ export const formSchema = z.object({
     })
   ),
   documents: z.object({
-    profilePicture: z.string(),
-    driverLicense: z.string(),
-    workAuth: z.string(),
+    profilePicture: z
+      .instanceof(File)
+      .refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "Profile picture must be less than 5MB",
+      }),
+    driverLicense: z
+      .instanceof(File)
+      .refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "Driver license must be less than 5MB",
+      }),
+    workAuth: z
+      .instanceof(File)
+      .refine((file) => file.size <= 5 * 1024 * 1024, {
+        message: "Work authorization must be less than 5MB",
+      }),
   }),
 });
 
@@ -87,7 +103,7 @@ export const useOnboardingForm = () =>
         type: "",
         startDate: "",
         endDate: "",
-        optReceipt: "",
+        optReceipt: new File([], ""),
         otherVisaTitle: "",
       },
       reference: {
@@ -110,9 +126,9 @@ export const useOnboardingForm = () =>
         },
       ],
       documents: {
-        profilePicture: "",
-        driverLicense: "",
-        workAuth: "",
+        profilePicture: new File([], ""),
+        driverLicense: new File([], ""),
+        workAuth: new File([], ""),
       },
     },
   });
