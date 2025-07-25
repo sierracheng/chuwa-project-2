@@ -55,3 +55,28 @@ export async function findUserAPI(input: {
 
     return data.data.login
 }
+
+export async function findUserVisaTypeAPI(input: {
+    id: string
+}) {
+    const url = `http://localhost:3004/${input.id}/visa-type`;
+    console.log('Making request to URL:', url);
+    
+    const response = await fetch(url, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    });
+
+    console.log('Response status:', response.status);
+    const data = await response.json();
+    console.log('Raw response data:', data);
+
+    if (!data.success) {
+        console.error("Error finding user visa type:", data.error);
+        return { success: false, message: data.message || "Failed to find user visa type" };
+    }
+
+    return data.data.visaType;
+}

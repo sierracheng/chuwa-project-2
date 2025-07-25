@@ -1,21 +1,36 @@
 import { type Request, type Response } from "express";
+import { User } from "../models/User";
 
 /**
- * TODO:
+ * DONE:
+ * get User Visa Type by Id
  */
-export async function createUser(req: Request, res: Response) {}
+export async function getUserVisaTypeById(req: Request, res: Response) {
+    const { id } = req.params;
+    console.log('received id:', id);
 
-/**
- * TODO:
- */
-export async function updateUser(req: Request, res: Response) {}
+    if (!id) {
+        return res.status(400).json({ error: "ID is required" });
+    }
 
-/**
- * TODO:
- */
-export async function getUser(req: Request, res: Response) {}
+    const user = await User.findById(id);
+    if (!user) {
+        return res.status(404).json({ error: "User not found" });
+    }
 
-/**
- * TODO:
- */
-export async function deleteUser(req: Request, res: Response) {}
+    const visaType = user.employment?.visaTitle
+    if (!visaType) {
+        return res.status(404).json({ 
+            success: false,
+            message: "Visa type not found for this user",
+            error: "Visa type not found for this user" });
+    }
+    return res.status(200).json({ 
+        success: true,
+        data: {
+            visaType: visaType,
+            userId: user.id
+        },
+        message: "Visa type retrieved successfully"
+     });
+}

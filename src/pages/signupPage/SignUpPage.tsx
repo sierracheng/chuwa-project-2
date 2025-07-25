@@ -62,7 +62,7 @@ export function SignUpPage() {
 
     try {
       const response = await createSimpleUserAPI(userData);
-      console.log('FullResponse: ', response);
+      // console.log('FullResponse: ', response);
       if (!response.success) {
         console.error("Failed to create user:", response.message);
       } else if (response.success) {
