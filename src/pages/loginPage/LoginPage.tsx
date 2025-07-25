@@ -22,11 +22,6 @@ import { findUserAPI } from "../../back-end/api/userAPI";
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().regex(PASSWORD_REGEX, "Invalid password input"),
-  confirm_password: z.string().min(1, "Confirm password is required"),
-  email: z.email("Invalid email address"),
-}).refine((data) => data.password === data.confirm_password, {
-  message: "Passwords do not match",
-  path: ["confirm_password"],
 });
 
 export function LoginPage() {
@@ -43,10 +38,13 @@ export function LoginPage() {
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const response = await findUserAPI({
+    const userData = {
       username: data.username,
       password: data.password,
-    })
+    };
+
+    const response = await findUserAPI(userData)
+    console.log(response)
 
     if (response.success) {
       setLoginSuccess(true)
@@ -55,7 +53,7 @@ export function LoginPage() {
       if (response.user.role === "HR") {
         navigate("/hr/homepage")
       } else {
-        navigate("/emploeyee/homepage")
+        navigate("/employee/homepage")
       }
     } else {
       alert(response.message || "Login failed")

@@ -35,6 +35,8 @@ export async function findUserAPI(input: {
     username: string
     password: string
 }) {
+    console.log("Sending login input to GraphQL:", input); // 🔍 log here
+
     const response = await fetch("http://localhost:3004/graphql", {
         method: "POST",
         headers: {
@@ -53,5 +55,5 @@ export async function findUserAPI(input: {
         return { success: false, message: "Failed to find user" }
     }
 
-    return data.data.login
+    return data.data.findUser
 }

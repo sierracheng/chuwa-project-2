@@ -7,6 +7,7 @@ import {
   VisaStatusPage,
   OnboardingPage,
   ErrorPage,
+  PersonalInformationPage
 } from "./pages";
 import { Layout } from "./components/Layout";
 import { HRProtectedRoutes } from "./routes/HRProtectedRoutes";
@@ -24,18 +25,27 @@ function App() {
         />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
-        
-        <Route element={<HRProtectedRoutes />}>
-          <Route
-            path="/hr/employees"
-            element={
+        <Route
+          path="/employee/homepage"
+          element={
             <Layout>
-              <EmployeeProfilesPage />
+              <PersonalInformationPage />
             </Layout>
           }
+        />
+
+
+        <Route path="/hr" element={<HRProtectedRoutes />}>
+          <Route
+            path="employees"
+            element={
+              <Layout>
+                <EmployeeProfilesPage />
+              </Layout>
+            }
           />
           <Route
-            path="/hr/visa"
+            path="visa"
             element={
               <Layout>
                 <VisaStatusPage />
@@ -44,12 +54,12 @@ function App() {
           />
         </Route>
 
-        <Route element={<EmployeeRouteProtection />}>
-          <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/employee" element={<EmployeeRouteProtection />}>
+          <Route path="onboarding" element={<OnboardingPage />} />
         </Route>
-        
+
       </Routes>
-    </BrowserRouter>
+    </BrowserRouter >
   );
 }
 

@@ -10,8 +10,8 @@ export const CREATE_SIMPLE_USER_MUTATION = `
 `;
 
 export const FIND_USER_MUTATION = `
-  mutation Login($input: LoginInput!) {
-    login(input: $input) {
+  mutation FindUser($input: LoginInput!) {
+    findUser(input: $input) {
       success
       message
       token
@@ -22,4 +22,4 @@ export const FIND_USER_MUTATION = `
       }
     }
   }
-`
+`;
