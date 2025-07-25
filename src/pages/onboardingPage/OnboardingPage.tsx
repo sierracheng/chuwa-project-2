@@ -3,7 +3,7 @@ import type { GenderType, VisaTypeUnion } from "@/back-end/models/Types";
 import Background from "@/components/Background";
 import { Card } from "@/components/Card/Card";
 import { formSchema, useOnboardingForm } from "@/utils/onboardingForm";
-import { useWatch, useFieldArray, FormProvider } from "react-hook-form";
+import { useWatch, useFieldArray } from "react-hook-form";
 import {
   FormField,
   FormItem,
@@ -21,7 +21,10 @@ export function OnboardingPage() {
   // File upload
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [driverLicenseFile, setDriverLicenseFile] = useState<File | null>(null);
+  const [optReceiptFile, setOptReceiptFile] = useState<File | null>(null);
 
+  // Handle file upload
   const handleUpload = async (file: File) => {
     console.log("Uploading file now!!!!!!:", file);
     const result = await uploadFile(file);
@@ -45,9 +48,6 @@ export function OnboardingPage() {
   // Profile picture preview
   useEffect(() => {
     if (profilePicture instanceof File) {
-      // Set the file to the state:
-      console.log("Profile picture:", profilePicture);
-      setProfileFile(profilePicture);
       // Create a URL for the file:
       const url = URL.createObjectURL(profilePicture);
       // Set the URL to the state:
@@ -78,18 +78,17 @@ export function OnboardingPage() {
             <form
               onSubmit={form.handleSubmit(
                 async (data: z.infer<typeof formSchema>) => {
-                  console.log("1111111111111111111");
                   try {
                     // TODO: Handle file upload
-                    const driverLicense = "/";
-                    const workAuth = "/";
-                    const optReceipt = "/";
-                    console.log(
-                      "Click submit button: Profile file:",
-                      profileFile
+                    const driverLicense = await handleUpload(
+                      driverLicenseFile || new File([], "")
                     );
-                    const profile = await handleUpload(profileFile!);
-                    console.log("Click submit button: Profile URL:", profile);
+                    const optReceipt = await handleUpload(
+                      optReceiptFile || new File([], "")
+                    );
+                    const profile = await handleUpload(
+                      profileFile || new File([], "")
+                    );
 
                     // Get user id from local storage
                     const userId =
@@ -130,12 +129,14 @@ export function OnboardingPage() {
                         visaTitle: data.workAuth.type as VisaTypeUnion,
                         startDate: new Date(data.workAuth.startDate),
                         endDate: new Date(data.workAuth.endDate),
-                        daysRemaining: 100,
+                        daysRemaining:
+                          new Date(data.workAuth.endDate).getTime() -
+                          new Date().getTime(),
                       },
                       documents: {
                         profilePictureUrl: profile,
                         driverLicenseUrl: driverLicense,
-                        workAuthorizationUrl: workAuth || optReceipt,
+                        workAuthorizationUrl: optReceipt,
                       },
                       reference: {
                         realName: {
@@ -225,7 +226,7 @@ export function OnboardingPage() {
               <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">
                 Profile Picture
               </h2>
-              {/* TODO: Add a preview of the profile picture */}
+              {/* Done: Add a preview of the profile picture */}
               {profilePreview && (
                 <div className="mt-4">
                   <img
@@ -247,7 +248,12 @@ export function OnboardingPage() {
                         accept="image/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) onChange(file);
+                          if (file) {
+                            onChange(file);
+                            setProfileFile(file);
+                          } else {
+                            setProfileFile(null);
+                          }
                         }}
                         className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
                       />
@@ -444,11 +450,30 @@ export function OnboardingPage() {
                     <option value="Other">Other</option>
                   </select>
                   {workAuthType === "F1" && (
-                    <input
-                      type="file"
-                      {...form.register("workAuth.optReceipt")}
-                      placeholder="Upload OPT Receipt"
-                      className="flex text-sm"
+                    <FormField
+                      control={form.control}
+                      name="workAuth.optReceipt"
+                      render={({ field: { onChange } }) => (
+                        <FormItem>
+                          <FormLabel>OPT Receipt</FormLabel>
+                          <FormControl>
+                            <input
+                              type="file"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  onChange(file);
+                                  setOptReceiptFile(file);
+                                } else {
+                                  setOptReceiptFile(null);
+                                }
+                              }}
+                              className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
                   )}
                   {workAuthType === "Other" && (
@@ -663,19 +688,96 @@ export function OnboardingPage() {
               <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">
                 Documents Summary
               </h2>
-              <label className="flex text-sm">Driver's License:</label>
-              <input
-                type="file"
-                {...form.register("documents.driverLicense")}
-                className="flex text-sm"
-              />
+              {/* User have uploaded the driver license file, show the file itself, this file canbe downloaded */}
+              {!driverLicenseFile && (
+                <FormField
+                  control={form.control}
+                  name="documents.driverLicense"
+                  render={({ field: { onChange } }) => (
+                    <FormItem>
+                      <FormLabel>Driver's License</FormLabel>
+                      <FormControl>
+                        <input
+                          type="file"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              onChange(file);
+                              setDriverLicenseFile(file);
+                            } else {
+                              setDriverLicenseFile(null);
+                            }
+                          }}
+                          className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              {/* User have uploaded the driver license file, show the file itself, this file canbe downloaded */}
+              {/* Allow user to delete the file */}
+              {driverLicenseFile && (
+                <div className="text-sm underline text-blue-500 flex justify-start gap-2">
+                  <a href={URL.createObjectURL(driverLicenseFile)} download>
+                    {driverLicenseFile.name}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setDriverLicenseFile(null)}
+                    className="text-red-600 underline text-sm w-fit"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
 
-              <label className="flex text-sm">Work Authorization:</label>
-              <input
-                type="file"
-                {...form.register("documents.workAuth")}
-                className="flex text-sm"
-              />
+              {/* User have uploaded the work authorization file, show the file itself, this file canbe downloaded */}
+              {!optReceiptFile && (
+                <FormField
+                  control={form.control}
+                  name="documents.workAuth"
+                  render={({ field: { onChange } }) => (
+                    <FormItem>
+                      <FormLabel>Work Authorization OPT Receipt</FormLabel>
+                      <FormControl>
+                        <input
+                          type="file"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              onChange(file);
+                              setOptReceiptFile(file);
+                            } else {
+                              setOptReceiptFile(null);
+                            }
+                          }}
+                          className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* User have uploaded the work authorization file, show the file itself, this file canbe downloaded */}
+              {/* Allow user to delete the file */}
+              {optReceiptFile && (
+                <div className="text-sm underline text-blue-500 flex justify-start gap-2">
+                  <a href={URL.createObjectURL(optReceiptFile)} download>
+                    {optReceiptFile.name}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setOptReceiptFile(null)}
+                    className="text-red-600 underline text-sm w-fit"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
 
               <button
                 type="submit"
