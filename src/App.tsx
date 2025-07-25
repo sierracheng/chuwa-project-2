@@ -25,14 +25,14 @@ function App() {
         />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route
+        {/* <Route
           path="/employee/homepage"
           element={
             <Layout>
               <PersonalInformationPage />
             </Layout>
           }
-        />
+        /> */}
 
 
         <Route path="/hr" element={<HRProtectedRoutes />}>
@@ -56,6 +56,14 @@ function App() {
 
         <Route path="/employee" element={<EmployeeRouteProtection />}>
           <Route path="onboarding" element={<OnboardingPage />} />
+          <Route
+            path="homepage"
+            element={
+              <Layout>
+                <PersonalInformationPage />
+              </Layout>
+            }
+          />
         </Route>
 
       </Routes>

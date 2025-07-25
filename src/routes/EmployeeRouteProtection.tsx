@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectIsLogin, selectRole} from "@/redux/features/authenticate/authenticateSlice";
+import { selectIsLogin, selectRole } from "@/redux/features/authenticate/authenticateSlice";
 
 export const EmployeeRouteProtection = () => {
     const isLogin = useSelector(selectIsLogin);
