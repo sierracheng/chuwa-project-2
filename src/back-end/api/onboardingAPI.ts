@@ -163,7 +163,9 @@ export async function updateAllOnboardingApplicationAPI(input: {
 }
 
 /**
- * Get the onboarding application data by user id
+ * Get All the onboarding application data by user id
+ * @param userId - The user id
+ * @returns {Object} Everything about the onboarding application
  */
 export async function getOnboardingApplicationAPI(userId: string) {
   try {
