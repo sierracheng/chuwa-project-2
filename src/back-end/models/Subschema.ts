@@ -75,7 +75,7 @@ export const VisaStepSchema = new Schema(
   {
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected", "not uploaded"],
     },
     feedback: String,
     document: {

@@ -5,6 +5,13 @@ import { Input } from '@/components/ui/input';
 interface VisaStepUploadProps {
     userId: string;
     step: 'optReceipt' | 'optEAD' | 'i983' | 'i20';
+    title?: string;
+    permission?: {
+        canUpload: boolean;
+        reason: string;
+        status?: string;
+        feedback?: string;
+    };
     onUploadSuccess?: (res:any) => void;
     onUploadError?: (error:string) => void;
 }
@@ -13,6 +20,8 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
     {
         userId,
         step,
+        title,
+        permission,
         onUploadSuccess,
         onUploadError
     }
@@ -20,6 +29,11 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<string>('');
+
+    const displayTitle = title || `Upload ${step} Document`;
+
+    const canUpload = permission?.canUpload !== false;
+    const isDisabled = !canUpload || uploading;
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -64,34 +78,99 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
 
     }
 
+        // Helper function to get status color
+    const getStatusColor = (status?: string) => {
+        switch (status) {
+            case 'approved':
+                return 'text-green-600';
+            case 'pending':
+                return 'text-yellow-600';
+            case 'rejected':
+                return 'text-red-600';
+            default:
+                return 'text-gray-600';
+        }
+    };
+
+    // Helper function to get status badge
+    const getStatusBadge = (status?: string) => {
+        if (!status || status === 'not_submitted') return null;
+        
+        const colorClass = getStatusColor(status);
+        return (
+            <span className={`inline-block px-2 py-1 text-xs rounded-full border ${colorClass} bg-opacity-10`}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+            </span>
+        );
+    };
+    
+    console.log(`VisaStepUpload ${step} - permission:`, permission);
+
     return (
-        <div className='space-y-4 p-4 border rounded-md shadow-sm bg-white'>
-            <h3 className='text-lg font-medium'>{`Upload ${step} Document`}</h3>
-            <div className='space-y-2'>
+        <div className={`space-y-4 p-4 border rounded-md shadow-sm ${canUpload ? 'bg-white' : 'bg-gray-50'}`}>
+            {/* Header with title and status */}
+            <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium">{displayTitle}</h3>
+                {permission?.status && getStatusBadge(permission.status)}
+            </div>
+
+            {/* Permission status message */}
+            {permission && !canUpload && (
+                <div className="p-3 bg-gray-100 border-l-4 border-gray-400 rounded">
+                    <p className="text-sm text-gray-700">
+                        <strong>Upload not available:</strong> {permission.reason}
+                    </p>
+                </div>
+            )}
+
+            {/* Feedback message for rejected documents */}
+            {permission?.status === 'rejected' && permission.feedback && (
+                <div className="p-3 bg-red-50 border-l-4 border-red-400 rounded">
+                    <p className="text-sm text-red-700">
+                        <strong>HR Feedback:</strong> {permission.feedback}
+                    </p>
+                </div>
+            )}
+
+            {/* Approved status message */}
+            {permission?.status === 'approved' && (
+                <div className="p-3 bg-green-50 border-l-4 border-green-400 rounded">
+                    <p className="text-sm text-green-700">
+                        <strong>Document approved!</strong> This step is complete.
+                    </p>
+                </div>
+            )}
+            {/* File upload section */}
+            <div className="space-y-2">
                 <Input
                     type="file"
                     id={`file-${step}`}
                     onChange={handleFileSelect}
                     accept=".pdf"
-                    disabled={uploading}
+                    disabled={isDisabled}
+                    className={!canUpload ? 'opacity-50 cursor-not-allowed' : ''}
                 />
 
                 {selectedFile && (
-                    <div className='text-sm text-gray-500 mt-2'>
+                    <div className="text-sm text-gray-500 mt-2">
                         Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} MB)
                     </div>
                 )}
             </div>
+
+            {/* Upload button */}
             <Button
                 onClick={handleUpload}
-                disabled={!selectedFile || uploading}
-                className='w-full'
+                disabled={!selectedFile || isDisabled}
+                className="w-full"
+                variant={canUpload ? "default" : "secondary"}
             >
-                {uploading ? 'Uploading...' : 'Upload Document'}
+                {uploading ? 'Uploading...' : canUpload ? 'Upload Document' : 'Upload Not Available'}
             </Button>
 
+            {/* Status message */}
             {uploadStatus && (
-                <div className='mt-2 text-sm text-gray-700'>
+                <div className={`mt-2 text-sm ${uploadStatus.includes('failed') ? 'text-red-600' : 'text-gray-700'}`}>
                     {uploadStatus}
                 </div>
             )}
