@@ -15,17 +15,17 @@ router.post("/onboarding-applications", (req, res) => {
 });
 
 // 2. PUT: Update an existing onboarding application
-router.put("/onboarding-applications/:id", (req, res) => {
+router.put("/onboarding-applications/:userId", (req, res) => {
   updateOnboardingApplication(req, res);
 });
 
 // 3. GET: Get an existing onboarding application
-router.get("/onboarding-applications/:id", (req, res) => {
+router.get("/onboarding-applications/:userId", (req, res) => {
   getOnboardingApplication(req, res);
 });
 
 // 4. DELETE: Delete an existing onboarding application
-router.delete("/onboarding-applications/:id", (req, res) => {
+router.delete("/onboarding-applications/:userId", (req, res) => {
   deleteOnboardingApplication(req, res);
 });
 

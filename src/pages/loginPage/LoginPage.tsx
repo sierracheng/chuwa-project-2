@@ -56,18 +56,19 @@ export function LoginPage() {
 
     if (response.success) {
       const userId = response.token.replace("mock-token-", "");
-      
-      console.log('extract UserId:', userId);// Assuming the response contains user ID
+
+      console.log("extract UserId:", userId); // Assuming the response contains user ID
       setLoginSuccess(true);
       dispatch(setIsLogin(true));
       dispatch(setRole(response.user.role));
       dispatch(setId(userId)); // Use the extracted userId
       localStorage.setItem("token", response.token);
+      localStorage.setItem("userId", userId);
 
       if (response.user.role === "HR") {
         navigate("/hr/homepage");
       } else {
-        navigate("/employee/homepage");
+        navigate("/employee/onboarding");
       }
     } else {
       alert(response.message || "Login failed");

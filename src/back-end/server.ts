@@ -13,6 +13,7 @@ import VisaStatusManagementRoutes from "./routes/VisaStatusManagementRoutes";
 import RegistrationTokenRoutes from "./routes/RegistrationTokenRoutes";
 import ValidateTokenRoutes from "./routes/ValidateTokenRoutes";
 import UploadFileRoutes from "./routes/UploadFile";
+import FetchFileRoutes from "./routes/FetchFile";
 
 const app = express();
 app.use(cors());
@@ -47,6 +48,7 @@ async function startApolloServer() {
   app.use("/", RegistrationTokenRoutes);
   app.use("/", ValidateTokenRoutes);
   app.use("/", UploadFileRoutes);
+  app.use("/", FetchFileRoutes);
 
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

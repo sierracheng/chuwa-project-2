@@ -1,8 +1,15 @@
-import { createOnboardingApplicationAPI } from "@/back-end/api/onboardingAPI";
+import {
+  createOnboardingApplicationAPI,
+  getOnboardingStatusAPI,
+} from "@/back-end/api/onboardingAPI";
 import type { GenderType, VisaTypeUnion } from "@/back-end/models/Types";
 import Background from "@/components/Background";
 import { Card } from "@/components/Card/Card";
-import { formSchema, useOnboardingForm } from "@/utils/onboardingForm";
+import {
+  formSchema,
+  resetForm,
+  useOnboardingForm,
+} from "@/utils/onboardingForm";
 import { useWatch, useFieldArray } from "react-hook-form";
 import {
   FormField,
@@ -16,21 +23,21 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { uploadFile } from "@/back-end/api/uploadFile";
 import type z from "zod";
+import { useNavigate } from "react-router-dom";
+import { fetchFile } from "@/back-end/api/fetchFile";
 
+/**
+ * TODO:
+ * 1. Only employee can access this page
+ * 2. When employee first time login to the system, he needs to create his information
+ * 3. Get this user's onboarding status from database
+ * 4. If the onboarding status is "pending", show the onboarding form
+ * 5. If the onboarding status is "approved", redirect to the employee homepage
+ * 6. If the onboarding status is "rejected", show the onboarding form with the previous data and HR feedback
+ */
 export function OnboardingPage() {
-  // File upload
-  const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const [profileFile, setProfileFile] = useState<File | null>(null);
-  const [driverLicenseFile, setDriverLicenseFile] = useState<File | null>(null);
-  const [optReceiptFile, setOptReceiptFile] = useState<File | null>(null);
-
-  // Handle file upload
-  const handleUpload = async (file: File) => {
-    console.log("Uploading file now!!!!!!:", file);
-    const result = await uploadFile(file);
-    console.log("Successfully uploaded file URL:", result);
-    return result;
-  };
+  // Navigate
+  const navigate = useNavigate();
 
   // Form
   const form = useOnboardingForm();
@@ -39,11 +46,88 @@ export function OnboardingPage() {
     control: form.control,
     name: "profilePicture",
   });
-
   const workAuthType = useWatch({
     control: form.control,
     name: "workAuth.type",
   });
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "emergencyContacts",
+  });
+
+  // Local State
+  // HR Feedback
+  const [hrFeedback, setHrFeedback] = useState<string | null>(null);
+
+  // File upload
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [driverLicenseFile, setDriverLicenseFile] = useState<File | null>(null);
+  const [optReceiptFile, setOptReceiptFile] = useState<File | null>(null);
+
+  // Get user id from local storage
+  const userId = localStorage.getItem("userId") || "6883e8c0764c51eb6f2d6b00"; // For testing id
+
+  // Try get the onboarding status from database
+  const [onboardingStatus, setOnboardingStatus] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchOnboardingStatus = async () => {
+      console.log("Fetching onboarding status...");
+      const response = await getOnboardingStatusAPI(userId);
+      console.log(
+        "Successfully fetched onboarding status:",
+        response.onboardingApplication.status
+      );
+      setOnboardingStatus(response.onboardingApplication.status);
+      // If the onboarding status is "approved", redirect to the employee homepage
+      if (onboardingStatus === "approved") {
+        navigate("/employee/homepage");
+      }
+      // If the onboarding status is "rejected", show the onboarding form with the previous data and HR feedback
+      else if (onboardingStatus === "rejected") {
+        // Reset the form
+        const { onboardingData } = await resetForm(userId, form);
+
+        // HR feedback
+        setHrFeedback(onboardingData.feedback);
+
+        // Fetch profile picture
+        const profileFile = await fetchFile(
+          onboardingData.documents.profilePictureUrl
+        );
+        setProfileFile(new File([profileFile], "profile.jpg"));
+        form.setValue("profilePicture", new File([profileFile], "profile.jpg"));
+
+        // Fetch the file from the URL
+        const optFile = await fetchFile(
+          onboardingData.documents.workAuthorizationUrl
+        );
+        form.setValue("workAuth.optReceipt", new File([optFile], "opt.pdf"));
+        setOptReceiptFile(new File([optFile], "opt.pdf"));
+
+        // Fetch driver license
+        const driverLicenseFile = await fetchFile(
+          onboardingData.documents.driverLicenseUrl
+        );
+        setDriverLicenseFile(
+          new File([driverLicenseFile], "driver-license.pdf")
+        );
+        form.setValue(
+          "documents.driverLicense",
+          new File([driverLicenseFile], "driver-license.pdf")
+        );
+      }
+    };
+    fetchOnboardingStatus();
+  }, [form, navigate, onboardingStatus, userId]);
+
+  // Handle file upload
+  const handleUpload = async (file: File) => {
+    console.log("Uploading file now!!!!!!:", file);
+    const result = await uploadFile(file);
+    console.log("Successfully uploaded file URL:", result);
+    return result;
+  };
 
   // Profile picture preview
   useEffect(() => {
@@ -58,11 +142,6 @@ export function OnboardingPage() {
       setProfilePreview(null);
     }
   }, [profilePicture]);
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "emergencyContacts",
-  });
 
   return (
     <main className="flex flex-col w-full text-2xl relative min-h-screen overflow-hidden">
@@ -89,11 +168,6 @@ export function OnboardingPage() {
                     const profile = await handleUpload(
                       profileFile || new File([], "")
                     );
-
-                    // Get user id from local storage
-                    const userId =
-                      localStorage.getItem("userId") ||
-                      "6883e8c0764c51eb6f2d6b00"; // For testing id
 
                     const payload = {
                       userId,
@@ -167,6 +241,11 @@ export function OnboardingPage() {
               <h1 className="text-4xl font-semibold text-center text-gray-900 mb-16">
                 Onboarding Application Form
               </h1>
+              {hrFeedback && (
+                <div className="text-red-500 text-center mb-6">
+                  {hrFeedback}
+                </div>
+              )}
               <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">
                 Personal Information
               </h2>
@@ -227,7 +306,7 @@ export function OnboardingPage() {
                 Profile Picture
               </h2>
               {/* Done: Add a preview of the profile picture */}
-              {profilePreview && (
+              {profilePreview && profileFile && (
                 <div className="mt-4">
                   <img
                     src={profilePreview}
@@ -236,32 +315,52 @@ export function OnboardingPage() {
                   />
                 </div>
               )}
-              <FormField
-                control={form.control}
-                name="profilePicture"
-                render={({ field: { onChange } }) => (
-                  <FormItem>
-                    <FormLabel>Profile Picture</FormLabel>
-                    <FormControl>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            onChange(file);
-                            setProfileFile(file);
-                          } else {
-                            setProfileFile(null);
-                          }
-                        }}
-                        className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!profileFile && (
+                <FormField
+                  control={form.control}
+                  name="profilePicture"
+                  render={({ field: { onChange } }) => (
+                    <FormItem>
+                      <FormLabel>Profile Picture</FormLabel>
+                      <FormControl>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              onChange(file);
+                              setProfileFile(file);
+                            } else {
+                              setProfileFile(null);
+                            }
+                          }}
+                          className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {profileFile && (
+                <div className="text-sm underline text-blue-500 flex justify-start gap-2">
+                  <a href={URL.createObjectURL(profileFile)} download>
+                    {profileFile.name}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileFile(null);
+                      setProfilePreview(null);
+                    }}
+                    className="text-red-600 underline text-sm w-fit"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
 
               <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">
                 Address
@@ -449,7 +548,7 @@ export function OnboardingPage() {
                     <option value="H4">H4</option>
                     <option value="Other">Other</option>
                   </select>
-                  {workAuthType === "F1" && (
+                  {workAuthType === "F1" && !optReceiptFile && (
                     <FormField
                       control={form.control}
                       name="workAuth.optReceipt"
@@ -475,6 +574,20 @@ export function OnboardingPage() {
                         </FormItem>
                       )}
                     />
+                  )}
+                  {optReceiptFile && (
+                    <div className="text-sm underline text-blue-500 flex justify-start gap-2">
+                      <a href={URL.createObjectURL(optReceiptFile)} download>
+                        {optReceiptFile.name}
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setOptReceiptFile(null)}
+                        className="text-red-600 underline text-sm w-fit"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   )}
                   {workAuthType === "Other" && (
                     <input

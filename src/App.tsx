@@ -50,8 +50,9 @@ function App() {
           />
         </Route>
         {/* Will add onboarding under /employee later*/}
-        <Route path="onboarding" element={<OnboardingPage />} />
+
         <Route path="/employee" element={<EmployeeRouteProtection />}>
+          <Route path="onboarding" element={<OnboardingPage />} />
           <Route
             path="homepage"
             element={

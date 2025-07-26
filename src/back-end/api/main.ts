@@ -3,6 +3,7 @@ import { findUserVisaTypeAPI } from "./userAPI";
 import { createRegistrationTokenAPI } from "./registrationTokenAPI";
 import { validateTokenAPI } from "./validateTokenAPI";
 import test from "node:test";
+import { getOnboardingApplicationAPI } from "./onboardingAPI";
 
 async function testCreateRegistrationTokenAPI(from: string, email: string) {
   try {
@@ -31,21 +32,31 @@ async function testfindUserVisaTypeAPI(id: string) {
   }
 }
 
+async function testGetOnboardingApplicationAPI(userId: string) {
+  try {
+    const response = await getOnboardingApplicationAPI(userId);
+    console.log("Response from getOnboardingApplicationAPI:", response);
+  } catch (error) {
+    console.error("Error getting onboarding application:", error);
+  }
+}
+
 function main() {
-  testCreateRegistrationTokenAPI(
-    // "akiko948436464@gmail.com",
-    "zhaoyq0429@gmail.com",
-    // "Test12Grace@gmail.com",
-    "zgeming@seas.upenn.edu"
-    //akiko948436464@gmail.com
-    // "xinranncheng@gmail.com",
-  );
+  // testCreateRegistrationTokenAPI(
+  //   // "akiko948436464@gmail.com",
+  //   "zhaoyq0429@gmail.com",
+  //   // "Test12Grace@gmail.com",
+  //   "zgeming@seas.upenn.edu"
+  //   //akiko948436464@gmail.com
+  //   // "xinranncheng@gmail.com",
+  // );
   // testValidateTokenAPI(
   //   "7464b889991c37662977aed35a5e48266fbb3380c05af78ed1251e5b28e8ec78"
   // );
   // testfindUserVisaTypeAPI(
   //   "6881a662acb068b02a184fbb"
   // );
+  testGetOnboardingApplicationAPI("6883e8c0764c51eb6f2d6b00");
 }
 
 main();
