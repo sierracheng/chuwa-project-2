@@ -81,3 +81,20 @@ export async function findUserVisaTypeAPI(input: {
 
     return data.data.visaType;
 }
+
+export async function getUserDataAPI(id: string) {
+    try {
+        const response = await fetch(`http://localhost:3004/getUserData/${id}`);
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error("Failed to fetch user data:", data.message);
+            return null;
+        }
+
+        return data.data;
+    } catch (err) {
+        console.error("API error:", err);
+        return null;
+    }
+}
