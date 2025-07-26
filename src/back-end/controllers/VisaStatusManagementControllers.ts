@@ -8,11 +8,21 @@ import imagekit from "../utils/imagekit";
 export async function getVisaStatus(req: Request, res: Response) {
  try {
     const userId = req.params.id;
+    // console.log("Received request to get visa status for user:", userId);
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
     const visa = await VisaStatusManagement.findOne({ user: userId });
     if (!visa) {
       return res.status(404).json({ message: "Visa status not found" });
     }
-    return res.status(200).json(visa);
+    // console.log("Visa status found:", visa);
+
+    return res.status(200).json({
+        success: true,
+        visa
+    });
   } catch (error) {
     console.error("Error fetching visa status:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -29,11 +39,17 @@ export async function uploadVisaSteps (req: Request, res: Response) {
     const validSteps: VisaSteps[] = ["optReceipt", "optEAD", "i983", "i20"];
 
     if (!validSteps.includes(step as VisaSteps)) {
-      return res.status(400).json({ message: "Invalid step" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid step" 
+    });
     }
 
     if (!file) {
-      return res.status(400).json({ message: "No file uploaded" });
+      return res.status(400).json({ 
+        success: false,
+        message: "No file uploaded" 
+      });
     }
 
     let visa = await VisaStatusManagement.findOne({ user: userId });
@@ -84,6 +100,7 @@ export async function uploadVisaSteps (req: Request, res: Response) {
         },
     };
     await visa!.save();
+    // In your uploadVisaSteps function, after saving:
     console.log(`Uploaded ${step} document for user ${userId}:`, uploadResponse.url);
     res.status(200).json({
         success: true,

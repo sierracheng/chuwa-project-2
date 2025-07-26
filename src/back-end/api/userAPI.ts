@@ -79,7 +79,7 @@ export async function findUserVisaTypeAPI(input: {
         return { success: false, message: data.message || "Failed to find user visa type" };
     }
 
-    return data.data.visaType;
+    return data;
 }
 
 export async function getUserDataAPI(id: string) {

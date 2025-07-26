@@ -1,6 +1,7 @@
 import { type Request, type Response } from "express";
 import { OnboardingApplication } from "../models/OnboardingApplication";
 import { User } from "../models/User";
+import { VisaStatusManagement } from "../models/VisaStatusManagement";
 import mongoose from "mongoose";
 
 /**
@@ -69,6 +70,25 @@ export async function createOnboardingApplication(req: Request, res: Response) {
       emergencyContact,
       onboardingApplication: onboardingApplication._id,
     });
+
+  if (req.body.documents?.workAuthorizationUrl) {
+    const existingVisa = await VisaStatusManagement.findOne({ user: req.body.userId });
+    if (!existingVisa) {
+      await VisaStatusManagement.create({
+        user: req.body.userId,
+        optReceipt: {
+          status: "pending",
+          document: {
+            url: req.body.documents.workAuthorizationUrl,
+            uploadedAt: new Date(),
+          },
+        },
+        optEAD: { status: "not uploaded" },
+        i983: { status: "not uploaded" },
+        i20: { status: "not uploaded" },
+      });
+    }
+    }
 
     return res.status(201).json({
       message: "Onboarding application created successfully",
@@ -142,6 +162,33 @@ export async function updateOnboardingApplication(req: Request, res: Response) {
       emergencyContact,
       onboardingApplication: onboardingApplication?._id,
     });
+    if (req.body.documents?.workAuthorizationUrl) {
+      let existingVisa = await VisaStatusManagement.findOne({ user: req.body.userId });
+      if (!existingVisa) {
+        existingVisa = await VisaStatusManagement.create({
+          user: req.body.userId,
+          optReceipt: {
+            status: "pending",
+            document: {
+              url: req.body.documents.workAuthorizationUrl || "",
+              uploadedAt: new Date(),
+            },
+        },
+        optEAD: { status: "not uploaded" },
+        i983: { status: "not uploaded" },
+        i20: { status: "not uploaded" },
+      });
+      } else {
+      if (existingVisa.optReceipt) {
+        existingVisa.optReceipt.document = {
+          url: req.body.documents.workAuthorizationUrl,
+          uploadedAt: new Date(),
+        };
+        existingVisa.optReceipt.status = "pending";
+      };
+    }
+      await existingVisa.save();
+    }
 
     return res.status(200).json({
       message: "Onboarding application updated successfully",

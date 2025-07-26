@@ -57,6 +57,7 @@ export async function createOnboardingApplicationAPI(input: {
         reference,
       }
     );
+
     return response.data;
   } catch (error) {
     console.error("Error creating onboarding application:", error);

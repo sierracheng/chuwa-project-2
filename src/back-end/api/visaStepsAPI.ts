@@ -46,14 +46,15 @@ export async function uploadVisaStepsAPI(
 export async function getUploadPermissionsAPI(userId: string): Promise<any> {
     try {
         const visaStatus = await getVisaStatusAPI(userId);
-        
+        console.log('Visa status from API:', visaStatus);
+
         if (!visaStatus.success) {
             // If no visa status exists, only optReceipt is allowed
             return {
-                optReceipt: { canUpload: true, reason: "" },
-                optEAD: { canUpload: false, reason: "Complete OPT Receipt first" },
-                i983: { canUpload: false, reason: "Complete OPT Receipt first" },
-                i20: { canUpload: false, reason: "Complete OPT Receipt first" }
+                optReceipt: { canUpload: true, reason: "", status: "not uploaded" },
+                optEAD: { canUpload: false, reason: "Complete OPT Receipt first", status: "not uploaded" },
+                i983: { canUpload: false, reason: "Complete OPT Receipt first", status: "not uploaded" },
+                i20: { canUpload: false, reason: "Complete OPT Receipt first", status: "not uploaded" }
             };
         }
 
@@ -74,13 +75,21 @@ export async function getUploadPermissionsAPI(userId: string): Promise<any> {
 
 function getStepPermission(visa: any, step: string, previousStep?: any) {
     const currentStep = visa[step];
+    if (!currentStep) {
+        const canStart = step === "optReceipt" || (previousStep && previousStep.status === "approved");
+        return {
+            canUpload: canStart,
+            reason: canStart ? "Ready to upload" : "Previous step must be approved first",
+            status: "not uploaded" 
+        };
+    }
     
     // Check if previous step is required and not approved
     if (previousStep && previousStep.status !== "approved") {
         return { 
             canUpload: false, 
             reason: "Previous step must be approved first",
-            status: currentStep.status 
+            status: currentStep?.status || "not uploaded" 
         };
     }
     
@@ -105,14 +114,16 @@ function getStepPermission(visa: any, step: string, previousStep?: any) {
                 status: "rejected",
                 feedback: currentStep.feedback || "No feedback provided"
             };
-        default: // not_submitted
-            return { 
-                canUpload: true, 
-                reason: "",
-                status: "not_submitted"
+        default: 
+            const canUpload = step === "optReceipt" || (previousStep && previousStep.status === "approved");
+            return {
+                canUpload,
+                reason: canUpload ? "Ready to upload" : "Previous step must be approved first",
+                status: "not uploaded"
             };
+        };
     }
-}
+
 
 export async function getVisaStatusAPI(userId: string): Promise<any> {
     try {
@@ -121,7 +132,7 @@ export async function getVisaStatusAPI(userId: string): Promise<any> {
             method: 'GET',
         });
 
-        console.log('getVisaStatusAPI response status:', response.status);
+        // console.log('getVisaStatusAPI response status:', response.status);
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -130,8 +141,11 @@ export async function getVisaStatusAPI(userId: string): Promise<any> {
 
         const result = await response.json();
         console.log('getVisaStatusAPI success:', result);
-        return result;
-        
+        return {
+            success: true,
+            visa: result.visa,
+        };
+
     } catch (error) {
         console.error("Error fetching visa status:", error);
         throw error; // Re-throw the original error instead of generic message

@@ -2,8 +2,8 @@
 import { findUserVisaTypeAPI } from "./userAPI";
 import { createRegistrationTokenAPI } from "./registrationTokenAPI";
 import { validateTokenAPI } from "./validateTokenAPI";
-import test from "node:test";
 import { getOnboardingApplicationAPI } from "./onboardingAPI";
+import { getVisaStatusAPI } from "./visaStepsAPI";
 
 async function testCreateRegistrationTokenAPI(from: string, email: string) {
   try {
@@ -41,6 +41,15 @@ async function testGetOnboardingApplicationAPI(userId: string) {
   }
 }
 
+async function testGetVisaStatusAPI(userId: string) {
+  try {
+    const response = await getVisaStatusAPI(userId);
+    console.log("Response from getVisaStatusAPI:", response);
+  } catch (error) {
+    console.error("Error getting visa status:", error);
+  }
+}
+
 function main() {
   // testCreateRegistrationTokenAPI(
   //   // "akiko948436464@gmail.com",
@@ -56,7 +65,8 @@ function main() {
   // testfindUserVisaTypeAPI(
   //   "6881a662acb068b02a184fbb"
   // );
-  testGetOnboardingApplicationAPI("6883e8c0764c51eb6f2d6b00");
+  // testGetOnboardingApplicationAPI("6883e8c0764c51eb6f2d6b00");
+  testGetVisaStatusAPI("6883e8c0764c51eb6f2d6b00");
 }
 
 main();

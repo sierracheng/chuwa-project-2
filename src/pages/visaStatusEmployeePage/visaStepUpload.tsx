@@ -78,7 +78,7 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
 
     }
 
-        // Helper function to get status color
+    // Helper function to get status color
     const getStatusColor = (status?: string) => {
         switch (status) {
             case 'approved':
@@ -94,7 +94,8 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
 
     // Helper function to get status badge
     const getStatusBadge = (status?: string) => {
-        if (!status || status === 'not_submitted') return null;
+        if (!status || status === 'not uploaded') return null;
+        console.log(`getStatusBadge - status: ${status}`);
         
         const colorClass = getStatusColor(status);
         return (
@@ -103,8 +104,14 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
             </span>
         );
     };
-    
-    console.log(`VisaStepUpload ${step} - permission:`, permission);
+    // console.log(`VisaStepUpload ${step} - permission:`, permission);
+    // console.log(`VisaStepUpload ${step} - permission?.status:`, permission?.status);
+    // console.log(`VisaStepUpload ${step} - will render badge:`, permission?.status && getStatusBadge(permission.status));
+
+    // console.log('uploadStatus value:', uploadStatus);
+    // console.log('uploadStatus includes failed:', uploadStatus.includes('failed'));
+
+    // console.log(`VisaStepUpload ${step} - permission:`, permission);
 
     return (
         <div className={`space-y-4 p-4 border rounded-md shadow-sm ${canUpload ? 'bg-white' : 'bg-gray-50'}`}>
@@ -167,6 +174,7 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
             >
                 {uploading ? 'Uploading...' : canUpload ? 'Upload Document' : 'Upload Not Available'}
             </Button>
+
 
             {/* Status message */}
             {uploadStatus && (
