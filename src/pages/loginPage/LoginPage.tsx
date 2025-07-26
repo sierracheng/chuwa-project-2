@@ -52,7 +52,6 @@ export function LoginPage() {
     };
 
     const response = await findUserAPI(userData);
-    console.log(response);
 
     if (response.success) {
       const userId = response.token.replace("mock-token-", "");
@@ -63,7 +62,7 @@ export function LoginPage() {
       dispatch(setRole(response.user.role));
       dispatch(setId(userId)); // Use the extracted userId
       localStorage.setItem("token", response.token);
-
+      localStorage.setItem("userId", response.user._id);
       if (response.user.role === "HR") {
         navigate("/hr/homepage");
       } else {
