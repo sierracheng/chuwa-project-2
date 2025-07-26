@@ -117,7 +117,7 @@ export function NavigationBar() {
                 label: Name,
                 href: "/employee/homepage",
                 icon: (
-                  <div className={`${open ? 'w-12 h-12' : 'w-8 h-8'} rounded-full overflow-hidden bg-gray-200 transition-all duration-150`}>
+                  <div className={`${open ? 'w-12 h-12' : 'w-7 h-7'} rounded-full overflow-hidden bg-gray-200 transition-all duration-150`}>
                   <img
                     src={AvatarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
                     className="w-full h-full object-cover"
