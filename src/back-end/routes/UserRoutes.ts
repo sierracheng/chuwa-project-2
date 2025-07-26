@@ -2,6 +2,7 @@ import express, { Router } from "express";
 import {
   getUserVisaTypeById,
   getUserData,
+  getUserNameAndAvatarById,
 } from "../controllers/UserControllers";
 
 const router: Router = express.Router();
@@ -12,6 +13,8 @@ router.get("/:id/visa-type", (req, res) => {
 });
 
 router.get("/getUserData/:id", getUserData);
+
+router.get("/getUserNameAndAvatar/:id", getUserNameAndAvatarById);
 
 export default router;
 

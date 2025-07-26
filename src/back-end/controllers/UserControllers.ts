@@ -1,5 +1,7 @@
 import { type Request, type Response } from "express";
 import { User } from "../models/User";
+import { OnboardingApplication } from "../models/OnboardingApplication";
+import { on } from "events";
 
 /**
  * DONE:
@@ -56,5 +58,33 @@ export async function getUserData(req: Request, res: Response) {
     } catch (error) {
         console.error("Error fetching user data:", error);
         return res.status(500).json({ success: false, message: "Server error" })
+    }
+}
+
+export async function getUserNameAndAvatarById(req: Request, res: Response) {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({ success: false, message: "User ID is required" });
+    }
+
+    try {
+        const user = await User.findById(id);
+        const onboardingApplication = await OnboardingApplication.findOne({ userId: id });
+
+        const name  = user?.realName || "Unknown User";
+        const avatarUrl = onboardingApplication?.documents.profilePictureUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
+
+        return res.status(200).json({
+            success: true,
+            message: "User name and avatar retrieved successfully",
+            data: {
+                name,
+                avatarUrl
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching user name and avatar:", error);
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 }

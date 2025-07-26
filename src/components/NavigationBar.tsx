@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { selectRole, clearAuthenticateState } from "@/redux/features/authenticate/authenticateSlice";
+import { selectRole, selectId, clearAuthenticateState } from "@/redux/features/authenticate/authenticateSlice";
 import { Sidebar, SidebarBody, SidebarLink } from "./ui/sidebar";
 import { logoutUser } from "@/back-end/api/auth";
 import {
@@ -14,11 +14,33 @@ import {
   IconUser,
   IconFileText,
 } from "@tabler/icons-react";
+import { getUserNameAndAvatarByIdAPI } from "@/back-end/api/userAPI";
 export function NavigationBar() {
   const [open, setOpen] = useState(false);
   const role = useSelector(selectRole);
+  const userId = useSelector(selectId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [Name, setName] = useState("");
+  const [AvatarUrl, setAvatarUrl] = useState("");
+
+  useEffect(() => {
+    const fetchUserNameAndAvatar = async () => {
+      try {
+        const response = await getUserNameAndAvatarByIdAPI(userId);
+        if (response) {
+          const firstName = response.name.preferredName ? response.name.preferredName : response.name.firstName;
+          setName(firstName + " " + response.name.lastName);
+          setAvatarUrl(response.avatarUrl);
+        } else {
+          console.error("Failed to fetch user name and avatar:", response.message);
+        }
+    } catch (error) {
+      console.error("Error fetching user name and avatar:", error);
+    }
+  };
+    fetchUserNameAndAvatar();
+  }, [userId]);
 
   const handleLogout = async () => {
     try {
@@ -92,16 +114,16 @@ export function NavigationBar() {
           <div className="flex flex-col items-left justify-between mt-5">
             <SidebarLink
               link={{
-                label: "Profile",
+                label: Name,
                 href: "/employee/homepage",
                 icon: (
+                  <div className={`${open ? 'w-12 h-12' : 'w-8 h-8'} rounded-full overflow-hidden bg-gray-200 transition-all duration-150`}>
                   <img
-                    src="https://assets.aceternity.com/manu.png"
-                    className="rounded-full"
-                    width={50}
-                    height={50}
+                    src={AvatarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
+                    className="w-full h-full object-cover"
                     alt="Avatar"
                   />
+                  </div>
                 ),
               }}
             />

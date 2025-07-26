@@ -98,3 +98,20 @@ export async function getUserDataAPI(id: string) {
         return null;
     }
 }
+
+export async function getUserNameAndAvatarByIdAPI(id: string) {
+    try {
+        const response = await fetch(`http://localhost:3004/getUserNameAndAvatar/${id}`);
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error("Failed to fetch user name and avatar:", data.message);
+            return null;
+        }
+
+        return data.data;
+    } catch (err) {
+        console.error("API error:", err);
+        return null;
+    }
+}

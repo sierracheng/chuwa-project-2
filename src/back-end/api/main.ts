@@ -1,5 +1,5 @@
 // TODO: add api function here
-import { findUserVisaTypeAPI } from "./userAPI";
+import { findUserVisaTypeAPI, getUserNameAndAvatarByIdAPI } from "./userAPI";
 import { createRegistrationTokenAPI } from "./registrationTokenAPI";
 import { validateTokenAPI } from "./validateTokenAPI";
 import { getOnboardingApplicationAPI } from "./onboardingAPI";
@@ -50,6 +50,15 @@ async function testGetVisaStatusAPI(userId: string) {
   }
 }
 
+async function testGetUserNameAndAvatarByIdAPI(id: string) {
+  try {
+    const response = await getUserNameAndAvatarByIdAPI(id);
+    console.log("Response from getUserNameAndAvatarByIdAPI:", response);
+  } catch (error) {
+    console.error("Error getting user name and avatar by ID:", error);
+  }
+}
+
 function main() {
   // testCreateRegistrationTokenAPI(
   //   // "akiko948436464@gmail.com",
@@ -66,7 +75,8 @@ function main() {
   //   "6881a662acb068b02a184fbb"
   // );
   // testGetOnboardingApplicationAPI("6883e8c0764c51eb6f2d6b00");
-  testGetVisaStatusAPI("6883e8c0764c51eb6f2d6b00");
+  // testGetVisaStatusAPI("6883e8c0764c51eb6f2d6b00");
+  testGetUserNameAndAvatarByIdAPI("6883e8c0764c51eb6f2d6b00");
 }
 
 main();
