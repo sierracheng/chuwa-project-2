@@ -95,7 +95,7 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
     // Helper function to get status badge
     const getStatusBadge = (status?: string) => {
         if (!status || status === 'not uploaded') return null;
-        console.log(`getStatusBadge - status: ${status}`);
+        // console.log(`getStatusBadge - status: ${status}`);
         
         const colorClass = getStatusColor(status);
         return (

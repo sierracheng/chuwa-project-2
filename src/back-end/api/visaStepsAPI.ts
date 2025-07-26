@@ -27,7 +27,7 @@ export async function uploadVisaStepsAPI(
             body: formData,
         });
 
-        console.log('Response status:', response.status);
+        // console.log('Response status:', response.status);
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -127,7 +127,7 @@ function getStepPermission(visa: any, step: string, previousStep?: any) {
 
 export async function getVisaStatusAPI(userId: string): Promise<any> {
     try {
-        console.log('Fetching visa status for userId:', userId);
+        // console.log('Fetching visa status for userId:', userId);
         const response = await fetch(`http://localhost:3004/visa/${userId}`, {
             method: 'GET',
         });

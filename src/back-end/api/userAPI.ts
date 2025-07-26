@@ -61,7 +61,7 @@ export async function findUserVisaTypeAPI(input: {
     id: string
 }) {
     const url = `http://localhost:3004/${input.id}/visa-type`;
-    console.log('Making request to URL:', url);
+    // console.log('Making request to URL:', url);
 
     const response = await fetch(url, {
         method: "GET",
@@ -70,7 +70,7 @@ export async function findUserVisaTypeAPI(input: {
         },
     });
 
-    console.log('Response status:', response.status);
+    // console.log('Response status:', response.status);
     const data = await response.json();
     console.log('Raw response data:', data);
 
