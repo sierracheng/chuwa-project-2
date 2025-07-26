@@ -3,6 +3,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getOnboardingApplicationAPI } from "@/back-end/api/onboardingAPI";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const resetForm = async (userId: string, form: any) => {
   const onboardingApplication = await getOnboardingApplicationAPI(userId);
   const userData = onboardingApplication.user;

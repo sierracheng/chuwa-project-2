@@ -73,12 +73,9 @@ export function OnboardingPage() {
   useEffect(() => {
     const fetchOnboardingStatus = async () => {
       console.log("Fetching onboarding status...");
-      const response = await getOnboardingStatusAPI(userId);
-      console.log(
-        "Successfully fetched onboarding status:",
-        response.onboardingApplication.status
-      );
-      setOnboardingStatus(response.onboardingApplication.status);
+      const status = await getOnboardingStatusAPI(userId);
+      console.log("Successfully fetched onboarding status:", status);
+      setOnboardingStatus(status);
       // If the onboarding status is "approved", redirect to the employee homepage
       if (onboardingStatus === "approved") {
         navigate("/employee/homepage");

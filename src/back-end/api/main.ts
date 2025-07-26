@@ -2,7 +2,11 @@
 import { findUserVisaTypeAPI, getUserNameAndAvatarByIdAPI } from "./userAPI";
 import { createRegistrationTokenAPI } from "./registrationTokenAPI";
 import { validateTokenAPI } from "./validateTokenAPI";
-import { getOnboardingApplicationAPI } from "./onboardingAPI";
+import {
+  getOnboardingApplicationAPI,
+  getOnboardingStatusAPI,
+  getUserDocumentObjectAPI,
+} from "./onboardingAPI";
 import { getVisaStatusAPI } from "./visaStepsAPI";
 
 async function testCreateRegistrationTokenAPI(from: string, email: string) {
@@ -59,6 +63,24 @@ async function testGetUserNameAndAvatarByIdAPI(id: string) {
   }
 }
 
+async function testGetOnboardingStatusAPI(userId: string) {
+  try {
+    const response = await getOnboardingStatusAPI(userId);
+    console.log("Response from getOnboardingStatusAPI:", response);
+  } catch (error) {
+    console.error("Error getting onboarding status:", error);
+  }
+}
+
+async function testGetUserDocumentObjectAPI(userId: string) {
+  try {
+    const response = await getUserDocumentObjectAPI(userId);
+    console.log("Response from getUserDocumentObjectAPI:", response);
+  } catch (error) {
+    console.error("Error getting user document object:", error);
+  }
+}
+
 function main() {
   // testCreateRegistrationTokenAPI(
   //   // "akiko948436464@gmail.com",
@@ -76,7 +98,9 @@ function main() {
   // );
   // testGetOnboardingApplicationAPI("6883e8c0764c51eb6f2d6b00");
   // testGetVisaStatusAPI("6883e8c0764c51eb6f2d6b00");
-  testGetUserNameAndAvatarByIdAPI("6883e8c0764c51eb6f2d6b00");
+  // testGetUserNameAndAvatarByIdAPI("6883e8c0764c51eb6f2d6b00");
+  // testGetOnboardingStatusAPI("6882c6cd1018ff27670a593d");
+  testGetUserDocumentObjectAPI("6883e8c0764c51eb6f2d6b00");
 }
 
 main();

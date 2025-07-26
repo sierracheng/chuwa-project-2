@@ -179,15 +179,33 @@ export async function getOnboardingApplicationAPI(userId: string) {
 
 /**
  * Get the onboarding status by user id
+ * @returns {string} The onboarding status
  */
 export async function getOnboardingStatusAPI(userId: string) {
   try {
     const response = await axios.get(
       `http://localhost:3004/onboarding-applications/${userId}`
     );
-    return response.data;
+    return response.data.onboardingApplication.status;
   } catch (error) {
     console.error("Error getting onboarding status:", error);
+    throw error;
+  }
+}
+
+/**
+ * Get the user document by user id
+ * @param userId - The user id
+ * @returns {Object} The user document, including the profile picture url, driver license url, and work authorization url
+ */
+export async function getUserDocumentObjectAPI(userId: string) {
+  try {
+    const response = await axios.get(
+      `http://localhost:3004/onboarding-applications/${userId}`
+    );
+    return response.data.onboardingApplication.documents;
+  } catch (error) {
+    console.error("Error getting user document:", error);
     throw error;
   }
 }
