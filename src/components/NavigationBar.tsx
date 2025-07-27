@@ -26,6 +26,11 @@ export function NavigationBar() {
 
   useEffect(() => {
     const fetchUserNameAndAvatar = async () => {
+      if (role === "HR") {
+        setName("HR");
+        setAvatarUrl("https://t3.ftcdn.net/jpg/03/33/19/36/360_F_333193633_wTU4rUC6aesxfyL0zW7Be5SC5b6tXyUJ.jpg");
+        return;
+      }
       try {
         const response = await getUserNameAndAvatarByIdAPI(userId);
         if (response) {
