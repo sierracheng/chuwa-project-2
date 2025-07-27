@@ -1,3 +1,4 @@
+
 export async function uploadVisaStepsAPI(
     userId: string,
     step: string,
@@ -27,7 +28,7 @@ export async function uploadVisaStepsAPI(
             body: formData,
         });
 
-        // console.log('Response status:', response.status);
+        // console.log('Response:', response);
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -75,54 +76,87 @@ export async function getUploadPermissionsAPI(userId: string): Promise<any> {
 
 function getStepPermission(visa: any, step: string, previousStep?: any) {
     const currentStep = visa[step];
+    const prevApproved = previousStep?.status === 'approved';
+
     if (!currentStep) {
-        const canStart = step === "optReceipt" || (previousStep && previousStep.status === "approved");
+        const canStart = step === "optReceipt" || prevApproved;
+        let uiMessage = '';
+        if (step === "optReceipt") {
+            uiMessage = "Please upload a copy of your OPT Receipt.";
+        } else if (!prevApproved) {
+            uiMessage = `Complete the previous step before uploading ${step}.`;
+        } else if (step === "optEAD") {
+            uiMessage = "Please upload a copy of your OPT EAD.";
+        } else if (step === "i983") {
+            uiMessage = "Please upload the filled I-983 form.";
+        } else if (step === "i20") {
+            uiMessage = "Please upload your updated I-20 from your school.";
+        }
+
         return {
             canUpload: canStart,
             reason: canStart ? "Ready to upload" : "Previous step must be approved first",
-            status: "not uploaded" 
+            status: "not uploaded",
+            url: null,
+            uiMessage,
         };
     }
-    
-    // Check if previous step is required and not approved
+
+    // if previous step not approved
     if (previousStep && previousStep.status !== "approved") {
-        return { 
-            canUpload: false, 
+        return {
+            canUpload: false,
             reason: "Previous step must be approved first",
-            status: currentStep?.status || "not uploaded" 
+            status: currentStep.status || "not uploaded",
+            url: currentStep.document?.url || null,
+            uiMessage: `Complete the previous step before uploading ${step}.`
         };
     }
-    
-    // Check current step status
+
+    // Based on current status
     switch (currentStep.status) {
         case "pending":
-            return { 
-                canUpload: false, 
-                reason: "Document is pending HR review",
-                status: "pending"
+            return {
+                canUpload: false,
+                reason: "Waiting for HR review",
+                status: "pending",
+                url: currentStep.document?.url || null,
+                uiMessage: `Waiting for HR to approve your ${step.toUpperCase()}`
             };
         case "approved":
-            return { 
-                canUpload: false, 
+            let nextStepMessage = "";
+            if (step === "optReceipt") nextStepMessage = "Please upload a copy of your OPT EAD.";
+            if (step === "optEAD") nextStepMessage = "Please download and fill out the I-983 form.";
+            if (step === "i983") nextStepMessage = "Please upload your new I-20 from your school.";
+            if (step === "i20") nextStepMessage = "All documents have been approved.";
+
+            return {
+                canUpload: false,
                 reason: "Document already approved",
-                status: "approved"
+                status: "approved",
+                url: currentStep.document?.url || null,
+                uiMessage: nextStepMessage
             };
         case "rejected":
-            return { 
-                canUpload: true, 
+            return {
+                canUpload: true,
                 reason: "Previous submission was rejected. You can re-upload.",
                 status: "rejected",
-                feedback: currentStep.feedback || "No feedback provided"
+                feedback: currentStep.feedback || "No feedback provided",
+                url: currentStep.document?.url || null,
+                uiMessage: `Your ${step.toUpperCase()} was rejected. Please re-upload.`
             };
-        default: 
-            const canUpload = step === "optReceipt" || (previousStep && previousStep.status === "approved");
+        default:
             return {
-                canUpload,
-                reason: canUpload ? "Ready to upload" : "Previous step must be approved first",
-                status: "not uploaded"
+                canUpload: step === "optReceipt" || prevApproved,
+                reason: "Upload allowed",
+                status: currentStep.status,
+                url: currentStep.document?.url || null,
+                uiMessage: "Upload your document"
             };
-        };
     }
+}
+
 
 
 export async function getVisaStatusAPI(userId: string): Promise<any> {

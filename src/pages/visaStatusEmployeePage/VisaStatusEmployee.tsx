@@ -1,4 +1,4 @@
-import React, {use, useEffect, useState} from "react"
+import React, { useEffect, useState } from "react"
 import { VisaStepUpload } from "./visaStepUpload"
 import { useSelector } from "react-redux";
 import { selectId } from "@/redux/features/authenticate/authenticateSlice";
@@ -12,6 +12,7 @@ export function VisaStatusEmployeePage() {
     // console.log(`VisaStatusEmployeePage - userId: ${userId}`);
     const [uploadPermissions, setUploadPermissions] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    
 
     useEffect(() => {
         if (userId) {

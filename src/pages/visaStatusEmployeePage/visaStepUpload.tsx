@@ -11,6 +11,7 @@ interface VisaStepUploadProps {
         reason: string;
         status?: string;
         feedback?: string;
+        uiMessage?: string;
     };
     onUploadSuccess?: (res:any) => void;
     onUploadError?: (error:string) => void;
@@ -34,6 +35,7 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
 
     const canUpload = permission?.canUpload !== false;
     const isDisabled = !canUpload || uploading;
+
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -104,7 +106,7 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
             </span>
         );
     };
-    // console.log(`VisaStepUpload ${step} - permission:`, permission);
+    console.log(`VisaStepUpload ${step} - permission:`, permission);
     // console.log(`VisaStepUpload ${step} - permission?.status:`, permission?.status);
     // console.log(`VisaStepUpload ${step} - will render badge:`, permission?.status && getStatusBadge(permission.status));
 
@@ -149,6 +151,33 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
             )}
             {/* File upload section */}
             <div className="space-y-2">
+                {/* Contextual Step Message */}
+                {permission?.uiMessage && (
+                <div className="p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
+                    <p className="text-sm text-blue-800">{permission.uiMessage}</p>
+                </div>
+                )}
+
+                {step === "i983" && (
+                <div className="flex gap-4">
+                    <a
+                    href="/templates/I-983-Empty.pdf"
+                    download
+                    className="text-blue-600 underline text-sm hover:text-blue-800"
+                    >
+                    Download I-983 Empty Template
+                    </a>
+                    <a
+                    href="/templates/I-983-Sample.pdf"
+                    download
+                    className="text-blue-600 underline text-sm hover:text-blue-800"
+                    >
+                    Download I-983 Sample Template
+                    </a>
+                </div>
+                )}
+
+
                 <Input
                     type="file"
                     id={`file-${step}`}
