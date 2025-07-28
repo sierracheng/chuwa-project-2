@@ -119,6 +119,8 @@ export async function updateAllOnboardingApplicationAPI(input: {
   employment: IEmployment;
   emergencyContact: IEmergencyContact;
   reference: IReference;
+  status: string;
+  feedback: string;
 }) {
   const {
     userId,
@@ -132,6 +134,8 @@ export async function updateAllOnboardingApplicationAPI(input: {
     employment,
     emergencyContact,
     reference,
+    status,
+    feedback,
   } = input;
   try {
     const response = await axios.put(
@@ -148,6 +152,8 @@ export async function updateAllOnboardingApplicationAPI(input: {
         employment,
         emergencyContact,
         reference,
+        status,
+        feedback,
       }
     );
     return response.data;

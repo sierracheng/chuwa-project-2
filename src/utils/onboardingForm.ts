@@ -118,7 +118,10 @@ export const formSchema = z.object({
   cellPhone: z.string().min(1, "Cell phone is required"),
   workPhone: z.string(),
   email: z.string(),
-  ssn: z.string().min(1, "SSN is required"),
+  ssn: z
+    .string()
+    .min(1, "SSN is required")
+    .regex(/^\d{9}$/, "SSN must be exactly 9 digits and contain only numbers"),
   dob: z.string().min(1, "Date of birth is required"),
   gender: z.string().min(1, "Gender is required"),
   citizen: z.string().min(1, "Citizen is required"),
