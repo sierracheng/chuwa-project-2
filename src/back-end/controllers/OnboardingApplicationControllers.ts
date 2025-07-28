@@ -71,23 +71,23 @@ export async function createOnboardingApplication(req: Request, res: Response) {
       onboardingApplication: onboardingApplication._id,
     });
 
-  if (req.body.documents?.workAuthorizationUrl) {
-    const existingVisa = await VisaStatusManagement.findOne({ user: req.body.userId });
-    if (!existingVisa) {
-      await VisaStatusManagement.create({
-        user: req.body.userId,
-        optReceipt: {
-          status: "pending",
-          document: {
-            url: req.body.documents.workAuthorizationUrl,
-            uploadedAt: new Date(),
+    if (req.body.documents?.workAuthorizationUrl) {
+      const existingVisa = await VisaStatusManagement.findOne({ user: req.body.userId });
+      if (!existingVisa) {
+        await VisaStatusManagement.create({
+          user: req.body.userId,
+          optReceipt: {
+            status: "pending",
+            document: {
+              url: req.body.documents.workAuthorizationUrl,
+              uploadedAt: new Date(),
+            },
           },
-        },
-        optEAD: { status: "not uploaded" },
-        i983: { status: "not uploaded" },
-        i20: { status: "not uploaded" },
-      });
-    }
+          optEAD: { status: "not uploaded" },
+          i983: { status: "not uploaded" },
+          i20: { status: "not uploaded" },
+        });
+      }
     }
 
     return res.status(201).json({
@@ -173,20 +173,20 @@ export async function updateOnboardingApplication(req: Request, res: Response) {
               url: req.body.documents.workAuthorizationUrl || "",
               uploadedAt: new Date(),
             },
-        },
-        optEAD: { status: "not uploaded" },
-        i983: { status: "not uploaded" },
-        i20: { status: "not uploaded" },
-      });
+          },
+          optEAD: { status: "not uploaded" },
+          i983: { status: "not uploaded" },
+          i20: { status: "not uploaded" },
+        });
       } else {
-      if (existingVisa.optReceipt) {
-        existingVisa.optReceipt.document = {
-          url: req.body.documents.workAuthorizationUrl,
-          uploadedAt: new Date(),
+        if (existingVisa.optReceipt) {
+          existingVisa.optReceipt.document = {
+            url: req.body.documents.workAuthorizationUrl,
+            uploadedAt: new Date(),
+          };
+          existingVisa.optReceipt.status = "pending";
         };
-        existingVisa.optReceipt.status = "pending";
-      };
-    }
+      }
       await existingVisa.save();
     }
 
@@ -238,4 +238,4 @@ export async function getOnboardingApplication(req: Request, res: Response) {
 export async function deleteOnboardingApplication(
   req: Request,
   res: Response
-) {}
+) { }

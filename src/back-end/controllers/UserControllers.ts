@@ -47,8 +47,12 @@ export async function getUserData(req: Request, res: Response) {
 
     try {
         const user = await User.findById(id);
+        const userDocument = await OnboardingApplication.findOne({ userId: id })
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
+        }
+        if (userDocument) {
+            user.onboardingApplication = userDocument
         }
         return res.status(200).json({
             success: true,
@@ -72,7 +76,7 @@ export async function getUserNameAndAvatarById(req: Request, res: Response) {
         const user = await User.findById(id);
         const onboardingApplication = await OnboardingApplication.findOne({ userId: id });
 
-        const name  = user?.realName || "Unknown User";
+        const name = user?.realName || "Unknown User";
         const avatarUrl = onboardingApplication?.documents.profilePictureUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg";
 
         return res.status(200).json({
