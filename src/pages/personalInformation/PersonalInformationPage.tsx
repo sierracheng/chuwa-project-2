@@ -28,11 +28,6 @@ export function PersonalInformationPage() {
         fetchUserData();
     }, []);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormState((prev) => ({ ...prev, [name]: value }));
-    };
-
     const handleNestedChange = (section: string, key: string, value: string) => {
         setFormState((prev) => ({
             ...prev,

@@ -3,6 +3,7 @@ import {
   getUserVisaTypeById,
   getUserData,
   getUserNameAndAvatarById,
+  getEmployeesData,
 } from "../controllers/UserControllers";
 
 const router: Router = express.Router();
@@ -15,6 +16,8 @@ router.get("/:id/visa-type", (req, res) => {
 router.get("/getUserData/:id", getUserData);
 
 router.get("/getUserNameAndAvatar/:id", getUserNameAndAvatarById);
+
+router.get("/getEmployees", getEmployeesData);
 
 export default router;
 

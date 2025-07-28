@@ -65,6 +65,28 @@ export async function getUserData(req: Request, res: Response) {
     }
 }
 
+export async function getEmployeesData(req: Request, res: Response) {
+
+    try {
+        const employees = await User.find({ role: 'Employee' });
+        //const userDocument = await OnboardingApplication.findOne({ userId: id })
+        if (!employees) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        // if (userDocument) {
+        //     user.onboardingApplication = userDocument
+        // }
+        return res.status(200).json({
+            success: true,
+            message: "Employee data received successfully",
+            data: employees
+        })
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        return res.status(500).json({ success: false, message: "Server error" })
+    }
+}
+
 export async function getUserNameAndAvatarById(req: Request, res: Response) {
     const { id } = req.params;
 

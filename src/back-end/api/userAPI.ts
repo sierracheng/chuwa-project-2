@@ -99,6 +99,23 @@ export async function getUserDataAPI(id: string) {
     }
 }
 
+export async function getEmployeesDataAPI() {
+    try {
+        const response = await fetch(`http://localhost:3004/getEmployees`);
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error("Failed to fetch employees data:", data.message);
+            return null;
+        }
+
+        return data.data;
+    } catch (err) {
+        console.error("API error:", err);
+        return null;
+    }
+}
+
 export async function getUserNameAndAvatarByIdAPI(id: string) {
     try {
         const response = await fetch(`http://localhost:3004/getUserNameAndAvatar/${id}`);
