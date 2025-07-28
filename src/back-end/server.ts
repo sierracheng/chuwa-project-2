@@ -14,6 +14,7 @@ import RegistrationTokenRoutes from "./routes/RegistrationTokenRoutes";
 import ValidateTokenRoutes from "./routes/ValidateTokenRoutes";
 import UploadFileRoutes from "./routes/UploadFile";
 import FetchFileRoutes from "./routes/FetchFile";
+import SentEmailRoutes from "./routes/SentEmail";
 
 const app = express();
 app.use(cors());
@@ -49,6 +50,7 @@ async function startApolloServer() {
   app.use("/", ValidateTokenRoutes);
   app.use("/", UploadFileRoutes);
   app.use("/", FetchFileRoutes);
+  app.use('/', SentEmailRoutes);
 
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

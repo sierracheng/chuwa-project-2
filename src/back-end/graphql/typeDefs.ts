@@ -28,6 +28,7 @@ export const typeDefs = gql`
         pending
         approved
         rejected
+        not_uploaded
     }
 
     type PersonName {
@@ -52,10 +53,10 @@ export const typeDefs = gql`
     }
 
     type Employment {
-        visaTitle: VisaType!
-        startDate: Date!
-        endDate: Date!
-        daysRemaining: Int!
+        visaTitle: VisaType
+        startDate: Date
+        endDate: Date
+        daysRemaining: Int
     }
 
     type EmergencyContact {
@@ -72,7 +73,7 @@ export const typeDefs = gql`
     
     type VisaFile {
         url: String
-        UploadedAt: Date
+        uploadedAt: Date
     }
     
     type VisaStep {
@@ -114,9 +115,10 @@ export const typeDefs = gql`
         realName: PersonName!
         email: String!
         username: String!
-        workAuth: VisaType!
+        employment: Employment!
         visaSteps: VisaEmployeeSteps!
         nextStep: String!
+        currentStep: String!
     }
     
     type VisaEmployeeSteps {
@@ -238,12 +240,6 @@ export const typeDefs = gql`
         uploadedAt: Date
     }
     
-    input BulkUpdateInput {
-        userId: ID!
-        stepName: String!
-        status: Status!
-        feedback: String
-    }
 
     input LoginInput {
     username: String!
@@ -267,19 +263,5 @@ export const typeDefs = gql`
             input: RegisterInput!
         ): User!
         deleteUser(id: ID!): User!
-        createVisaStatusManagement(
-            userId: ID!
-        ): VisaStatusManagement!
-        updateVisaStatusStep(
-            userId: ID!
-            stepName: String!
-            data: VisaStepInput!
-        ): VisaStatusManagement!
-        bulkUpdateVisaStatus(
-            input: [BulkUpdateInput!]!
-        ): [BulkUpdateResponse!]!
-        deleteVisaStatusManagement(
-            userId: ID!
-        ): VisaStatusManagement!
     }
 `;

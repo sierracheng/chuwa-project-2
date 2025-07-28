@@ -3,6 +3,7 @@ import { upload } from "../middlewares/multer";
 import {
   getVisaStatus,
   uploadVisaSteps,
+  updateReviewVisaStep,
 } from "../controllers/VisaStatusManagementControllers";
 
 const router: Router = express.Router();
@@ -13,5 +14,9 @@ router.post("/visa/:userId/:step/upload",
   upload.single("document"),
   uploadVisaSteps
 );
+
+router.patch("/visa/:userId/:step/review", updateReviewVisaStep);
+
+
 
 export default router;

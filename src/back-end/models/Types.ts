@@ -10,7 +10,7 @@ export const Visa = {
   International: "International",
   H1B: "H1B",
   L2: "L2",
-  F1: "F1 (CPT, OPT)",
+  F1: "F1_CPT_OPT",
   H4: "H4",
   Other: "Other",
 } as const;

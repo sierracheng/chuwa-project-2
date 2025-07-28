@@ -1,104 +1,175 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { User } from "@/back-end/models/User";
 import { VisaStatusManagement } from "@/back-end/models/VisaStatusManagement";
 
-// Helper function to determine next step in visa process
+
+// Normalize raw step status from DB
+function normalizeStatus(status?: string): "pending" | "approved" | "rejected" | "not_uploaded" {
+  if (!status || status === "not uploaded") return "not_uploaded";
+  if (["pending", "approved", "rejected"].includes(status)) return status as any;
+  return "not_uploaded";
+}
+
+// Helper to determine next step
 function determineNextStep(steps: {
   optReceipt?: any;
   optEAD?: any;
   i983?: any;
   i20?: any;
-}) {
-  if (!steps.optReceipt || steps.optReceipt.status === "rejected") {
-    return "Submit OPT Receipt";
-  }
-  if (steps.optReceipt.status === "pending") {
-    return "Wait for HR to approve OPT Receipt";
-  }
-  if (!steps.optEAD || steps.optEAD.status === "rejected") {
-    return "Submit OPT EAD";
-  }
-  if (steps.optEAD.status === "pending") {
-    return "Wait for HR to approve OPT EAD";
-  }
-  if (!steps.i983 || steps.i983.status === "rejected") {
-    return "Submit I-983";
-  }
-  if (steps.i983.status === "pending") {
-    return "Wait for HR to approve I-983";
-  }
-  if (!steps.i20 || steps.i20.status === "rejected") {
-    return "Submit I-20";
-  }
-  if (steps.i20.status === "pending") {
-    return "Wait for HR to approve I-20";
-  }
+}): string {
+  const s = {
+    optReceipt: normalizeStatus(steps.optReceipt?.status),
+    optEAD: normalizeStatus(steps.optEAD?.status),
+    i983: normalizeStatus(steps.i983?.status),
+    i20: normalizeStatus(steps.i20?.status),
+  };
+
+  if (s.optReceipt === "not_uploaded" || s.optReceipt === "rejected") return "Wait to submit OPT Receipt";
+  if (s.optReceipt === "pending") return "OPT Receipt needs review";
+
+  if (s.optEAD === "not_uploaded" || s.optEAD === "rejected") return "Wait to submit OPT EAD";
+  if (s.optEAD === "pending") return "OPT EAD needs review";
+
+  if (s.i983 === "not_uploaded" || s.i983 === "rejected") return "Wait to submit I-983";
+  if (s.i983 === "pending") return "I-983 needs review";
+
+  if (s.i20 === "not_uploaded" || s.i20 === "rejected") return "Wait to submit I-20";
+  if (s.i20 === "pending") return "I-20 needs review";
+
   return "Complete";
 }
 
+function determineCurrentStepKey(steps: any): "optReceipt" | "optEAD" | "i983" | "i20" | null {
+  const s = {
+    optReceipt: normalizeStatus(steps.optReceipt?.status),
+    optEAD: normalizeStatus(steps.optEAD?.status),
+    i983: normalizeStatus(steps.i983?.status),
+    i20: normalizeStatus(steps.i20?.status),
+  };
+
+  if (s.optReceipt === "not_uploaded" || s.optReceipt === "rejected" || s.optReceipt === "pending") return "optReceipt";
+  if (s.optEAD === "not_uploaded" || s.optEAD === "rejected" || s.optEAD === "pending") return "optEAD";
+  if (s.i983 === "not_uploaded" || s.i983 === "rejected" || s.i983 === "pending") return "i983";
+  if (s.i20 === "not_uploaded" || s.i20 === "rejected" || s.i20 === "pending") return "i20";
+  return null;
+}
+
+
 export const visaResolvers = {
   Query: {
-    getVisaStatusManagementByUserId: async (
-      _: any,
-      { userId }: { userId: string }
-    ) => {
+    getVisaStatusManagementByUserId: async (_: any, { userId }: { userId: string }) => {
       return await VisaStatusManagement.findOne({ user: userId });
     },
 
     getAllVisaStatuses: async () => {
       return await VisaStatusManagement.find({})
-        .populate("user", "realName email workAuth username")
-        .lean()
+        .populate("user", "realName email employment username")
+        .lean();
     },
 
     getInProgressVisaEmployees: async () => {
       const visaRecords = await VisaStatusManagement.find({})
-        .populate("user", "realName email workAuth username")
+        .populate("user", "realName email employment username");
 
       const inProgress = visaRecords.filter((record) => {
         const steps = [record.optReceipt, record.optEAD, record.i983, record.i20];
-        return steps.some(
-          (step) => !step || step.status === "pending" || step.status === "rejected"
-        );
+        return steps.some((step) => {
+          const status = normalizeStatus(step?.status);
+          return status === "pending" || status === "rejected" || status === "not_uploaded";
+        });
       });
 
-      return inProgress.map((record) => {
-        const { user, optReceipt, optEAD, i983, i20, _id } = record;
-        const nextStep = determineNextStep({ optReceipt, optEAD, i983, i20 });
-        const populatedUser = user as typeof user & {
-          _id: string;
-          realName: string;
-          email: string;
-          username: string;
-          workAuth: string;
-        };
+      return inProgress
+        .filter((record) => record.user)
+        .map((record) => {
+          const { user, optReceipt, optEAD, i983, i20, _id } = record;
+          const populatedUser = user as typeof user & {
+            _id: string;
+            realName: string;
+            email: string;
+            username: string;
+            employment: {
+              visaTitle: string;
+              startDate: string;
+              endDate: string;
+              daysRemaining: number;
+            };
+          };
 
-        return {
-          _id,
-          userId: populatedUser._id,
-          realName: populatedUser.realName,
-          email: populatedUser.email,
-          username: populatedUser.username,
-          workAuth: populatedUser.workAuth,
-          visaSteps: { optReceipt, optEAD, i983, i20 },
-          nextStep,
-        };
-      });
+          const visaSteps = {
+            optReceipt: {
+              status: normalizeStatus(optReceipt?.status),
+              feedback: optReceipt?.feedback || null,
+              document: optReceipt?.document || null,
+            },
+            optEAD: {
+              status: normalizeStatus(optEAD?.status),
+              feedback: optEAD?.feedback || null,
+              document: optEAD?.document || null,
+            },
+            i983: {
+              status: normalizeStatus(i983?.status),
+              feedback: i983?.feedback || null,
+              document: i983?.document || null,
+            },
+            i20: {
+              status: normalizeStatus(i20?.status),
+              feedback: i20?.feedback || null,
+              document: i20?.document || null,
+            },
+          };
+
+
+          return {
+            _id,
+            userId: populatedUser._id,
+            realName: populatedUser.realName,
+            email: populatedUser.email,
+            username: populatedUser.username,
+            employment: populatedUser.employment,
+            visaSteps,
+            currentStep: determineCurrentStepKey(visaSteps),
+            nextStep: determineNextStep(visaSteps),
+          };
+        });
     },
 
     getCompletedVisaEmployees: async () => {
       const visaRecords = await VisaStatusManagement.find({})
-        .populate("user", "realName email workAuth username")
+        .populate("user", "realName email employment username")
         .lean();
 
       const completed = visaRecords.filter((record) => {
         const steps = [record.optReceipt, record.optEAD, record.i983, record.i20];
-        return steps.every((step) => step && step.status === "approved");
+        return steps.every((step) => normalizeStatus(step?.status) === "approved");
       });
 
       return completed.map((record) => {
         const { user, optReceipt, optEAD, i983, i20, _id } = record;
-        const populatedUser = user as any; // Type assertion for populated user
+        const populatedUser = user as any;
+
+        const visaSteps = {
+          optReceipt: {
+            status: normalizeStatus(optReceipt?.status),
+            feedback: optReceipt?.feedback || null,
+            document: optReceipt?.document || null,
+          },
+          optEAD: {
+            status: normalizeStatus(optEAD?.status),
+            feedback: optEAD?.feedback || null,
+            document: optEAD?.document || null,
+          },
+          i983: {
+            status: normalizeStatus(i983?.status),
+            feedback: i983?.feedback || null,
+            document: i983?.document || null,
+          },
+          i20: {
+            status: normalizeStatus(i20?.status),
+            feedback: i20?.feedback || null,
+            document: i20?.document || null,
+          },
+        };
+
 
         return {
           _id,
@@ -106,181 +177,11 @@ export const visaResolvers = {
           realName: populatedUser.realName,
           email: populatedUser.email,
           username: populatedUser.username,
-          workAuth: populatedUser.workAuth,
-          visaSteps: { optReceipt, optEAD, i983, i20 },
+          employment: populatedUser.employment,
+          visaSteps,
           nextStep: "Complete",
         };
       });
-    },
-
-    getVisaEmployeesByStatus: async (
-      _: any,
-      { status }: { status: "pending" | "approved" | "rejected" | "in-progress" | "complete" }
-    ) => {
-      const visaRecords = await VisaStatusManagement.find({})
-        .populate("user", "realName email workAuth username")
-        .lean();
-
-      let filteredRecords;
-
-      if (status === "in-progress") {
-        filteredRecords = visaRecords.filter((record) => {
-          const steps = [record.optReceipt, record.optEAD, record.i983, record.i20];
-          return steps.some(
-            (step) => !step || step.status === "pending" || step.status === "rejected"
-          );
-        });
-      } else if (status === "complete") {
-        filteredRecords = visaRecords.filter((record) => {
-          const steps = [record.optReceipt, record.optEAD, record.i983, record.i20];
-          return steps.every((step) => step && step.status === "approved");
-        });
-      } else {
-        filteredRecords = visaRecords.filter((record) => {
-          const steps = [record.optReceipt, record.optEAD, record.i983, record.i20];
-          return steps.some((step) => step && step.status === status);
-        });
-      }
-
-      return filteredRecords.map((record) => {
-        const { user, optReceipt, optEAD, i983, i20, _id } = record;
-        const nextStep = determineNextStep({ optReceipt, optEAD, i983, i20 });
-        const populatedUser = user as any; // Type assertion for populated user
-
-        return {
-          _id,
-          userId: populatedUser._id,
-          realName: populatedUser.realName,
-          email: populatedUser.email,
-          username: populatedUser.username,
-          workAuth: populatedUser.workAuth,
-          visaSteps: { optReceipt, optEAD, i983, i20 },
-          nextStep,
-        };
-      });
-    },
-  },
-
-  Mutation: {
-    createVisaStatusManagement: async (
-      _: any,
-      { userId }: { userId: string }
-    ) => {
-      const user = await User.findById(userId);
-      if (!user) {
-        throw new Error("User not found");
-      }
-
-      const existingRecord = await VisaStatusManagement.findOne({
-        user: userId,
-      });
-      if (existingRecord) {
-        throw new Error(
-          "Visa status management record already exists for this user"
-        );
-      }
-
-      const record = new VisaStatusManagement({ user: user._id });
-      await record.save();
-      return record;
-    },
-
-    updateVisaStatusStep: async (
-      _: any,
-      {
-        userId,
-        stepName,
-        data,
-      }: {
-        userId: string;
-        stepName: "optReceipt" | "optEAD" | "i983" | "i20";
-        data: {
-          status: "pending" | "approved" | "rejected";
-          feedback?: string;
-          document?: {
-            url: string;
-            uploadedAt: Date;
-          };
-        };
-      }
-    ) => {
-      const visaStatus = await VisaStatusManagement.findOne({ user: userId });
-      if (!visaStatus) {
-        throw new Error("Visa status management record not found");
-      }
-
-      visaStatus[stepName] = {
-        ...visaStatus[stepName],
-        ...data,
-        document: {
-          url: data.document?.url ?? visaStatus[stepName]?.document?.url ?? "",
-          uploadedAt:
-            data.document?.uploadedAt ??
-            visaStatus[stepName]?.document?.uploadedAt ??
-            new Date(),
-        },
-      };
-
-      await visaStatus.save();
-      return visaStatus;
-    },
-
-    bulkUpdateVisaStatus: async (
-      _: any,
-      {
-        updates,
-      }: {
-        updates: Array<{
-          userId: string;
-          stepName: "optReceipt" | "optEAD" | "i983" | "i20";
-          status: "pending" | "approved" | "rejected";
-          feedback?: string;
-        }>;
-      }
-    ) => {
-      const results = [];
-      
-      for (const update of updates) {
-        try {
-          const visaStatus = await VisaStatusManagement.findOne({ 
-            user: update.userId 
-          });
-          
-          if (!visaStatus) {
-            throw new Error(`Visa status record not found for user ${update.userId}`);
-          }
-
-          visaStatus[update.stepName] = {
-            ...visaStatus[update.stepName],
-            status: update.status,
-            feedback: update.feedback ?? visaStatus[update.stepName]?.feedback ?? "",
-          };
-
-          await visaStatus.save();
-          results.push({ success: true, userId: update.userId, visaStatus });
-        } catch (error) {
-          results.push({ 
-            success: false, 
-            userId: update.userId, 
-            error: error instanceof Error ? error.message : String(error)
-          });
-        }
-      }
-
-      return results;
-    },
-
-    deleteVisaStatusManagement: async (
-      _: any,
-      { userId }: { userId: string }
-    ) => {
-      const visaStatus = await VisaStatusManagement.findOne({ user: userId });
-      if (!visaStatus) {
-        throw new Error("Visa status management record not found");
-      }
-
-      await VisaStatusManagement.deleteOne({ user: userId });
-      return visaStatus;
     },
   },
 };

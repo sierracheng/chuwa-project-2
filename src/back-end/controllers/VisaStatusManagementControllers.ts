@@ -158,8 +158,50 @@ function checkUploadConditions(visa: any, step: VisaSteps): { allowed: boolean; 
     return { allowed: true, message: "" };
 }
 
-export async function approveAction(req: Request, res: Response) {
-}
+export async function updateReviewVisaStep(req: Request, res: Response) {
+    const { userId, step } = req.params;
+    const { status, feedback } = req.body;
+    const validSteps: VisaSteps[] = ["optReceipt", "optEAD", "i983", "i20"];
 
-export async function rejectAction(req: Request, res: Response) {
-}
+    if( !validSteps.includes(step as VisaSteps)) {
+        return res.status(400).json({ 
+            success: false,
+            message: "Invalid step" 
+        });
+    }
+
+    if (!["approved", "rejected"].includes(status)) {
+        return res.status(400).json({ 
+            success: false,
+            message: "Invalid status" 
+        });
+    }
+
+    try {
+        const record = await VisaStatusManagement.findOne({ user: userId });
+        if (!record) {
+            return res.status(404).json({ 
+                success: false,
+                message: "Visa status record not found" 
+            });
+        }
+        const currentStep = record[step as VisaSteps] || {status: 'pending'};
+        currentStep.status = status;
+        if (status === "rejected") {
+            currentStep.feedback = feedback || "No feedback provided";
+        }
+        record[step as VisaSteps] = currentStep;
+        await record.save();
+        return res.status(200).json({ 
+            success: true,
+            updated: record,
+            message: "Visa status updated successfully" 
+        });
+    } catch (error) {
+        console.error("Error updating visa step:", error);
+        return res.status(500).json({ 
+            success: false,
+            message: "Internal server error" 
+        });
+    }
+};

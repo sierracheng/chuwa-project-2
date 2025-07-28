@@ -1,4 +1,12 @@
+import {
+    GET_VISA_STATUS_BY_USER_ID,
+    GET_ALL_VISA_STATUSES,
+    GET_IN_PROGRESS_VISA_EMPLOYEES,
+    GET_COMPLETED_VISA_EMPLOYEES,
+} from '../mutations/Visa';
 
+
+// Employee side API
 export async function uploadVisaStepsAPI(
     userId: string,
     step: string,
@@ -184,4 +192,132 @@ export async function getVisaStatusAPI(userId: string): Promise<any> {
         console.error("Error fetching visa status:", error);
         throw error; // Re-throw the original error instead of generic message
     }
+}
+
+//HR side API
+//REST API to update
+
+export async function updateReviewVisaStepAPI(
+    userId: string,
+    step: string,
+    action: "approved" | "rejected",
+    feedback?: string
+){
+    const response = await fetch(`http://localhost:3004/visa/${userId}/${step}/review`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            status: action,
+            feedback: feedback || "",
+        }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update visa step');
+    }
+
+    const result = await response.json();
+    return {
+        success: true,
+        updated: result.updated,
+    };
+}
+
+//GraphQL API to query
+export async function getVisaStatusByUserIdAPI(userId: string) {
+    const response = await fetch("http://localhost:3004/graphql", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            query: GET_VISA_STATUS_BY_USER_ID,
+            variables: { userId },
+        }),
+    });
+
+    const data = await response.json();
+    if (data.errors) {
+        console.error("GraphQL error:", data.errors);
+        return { success: false };
+    }
+
+    return {
+        success: true,
+        visa: data.data.getVisaStatusManagementByUserId,
+    };
+}
+
+export async function getInProgressVisaEmployeesAPI() {
+    const response = await fetch("http://localhost:3004/graphql", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            query: GET_IN_PROGRESS_VISA_EMPLOYEES,
+        }),
+    });
+
+    const data = await response.json();
+    if (data.errors) {
+        console.error("GraphQL error:", data.errors);
+        return { success: false };
+    }
+
+    return {
+        success: true,
+        employees: data.data.getInProgressVisaEmployees,
+    };
+}
+
+export async function getCompletedVisaEmployeesAPI() {
+    const response = await fetch("http://localhost:3004/graphql", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            query: GET_COMPLETED_VISA_EMPLOYEES,
+        }),
+    });
+
+    const data = await response.json();
+    if (data.errors) {
+        console.error("GraphQL error:", data.errors);
+        return { success: false };
+    }
+
+    return {
+        success: true,
+        employees: data.data.getCompletedVisaEmployees,
+    };
+}
+
+
+
+export async function getAllVisaStatusesAPI() {
+    const response = await fetch("http://localhost:3004/graphql", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            query: GET_ALL_VISA_STATUSES,
+        }),
+    });
+
+    const result = await response.json();
+    if (result.errors) {
+        console.error("GraphQL error:", result.errors);
+        return { success: false };
+    }
+
+    return {
+        success: true,
+        visaStatuses: result.data.getAllVisaStatuses,
+    };
 }
