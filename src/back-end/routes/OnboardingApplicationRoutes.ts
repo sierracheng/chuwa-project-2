@@ -3,7 +3,6 @@ import {
   createOnboardingApplication,
   updateOnboardingApplication,
   getOnboardingApplication,
-  deleteOnboardingApplication,
 } from "../controllers/OnboardingApplicationControllers";
 
 const router: Router = express.Router();
@@ -22,11 +21,6 @@ router.put("/onboarding-applications/:userId", (req, res) => {
 // 3. GET: Get an existing onboarding application
 router.get("/onboarding-applications/:userId", (req, res) => {
   getOnboardingApplication(req, res);
-});
-
-// 4. DELETE: Delete an existing onboarding application
-router.delete("/onboarding-applications/:userId", (req, res) => {
-  deleteOnboardingApplication(req, res);
 });
 
 export default router;

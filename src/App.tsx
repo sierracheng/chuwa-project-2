@@ -13,6 +13,7 @@ import {
 import { Layout } from "./components/Layout";
 import { HRProtectedRoutes } from "./routes/HRProtectedRoutes";
 import { EmployeeRouteProtection } from "./routes/EmployeeRouteProtection";
+import { HiringManagementPage } from "./pages/hiringManagementPage";
 
 function App() {
   return (
@@ -33,6 +34,14 @@ function App() {
         /> */}
 
         <Route path="/hr" element={<HRProtectedRoutes />}>
+          <Route
+            path="hiring"
+            element={
+              <Layout>
+                <HiringManagementPage />
+              </Layout>
+            }
+          />
           <Route
             path="employees"
             element={

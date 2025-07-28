@@ -235,11 +235,3 @@ export async function getOnboardingApplication(req: Request, res: Response) {
       .json({ error: "Failed to get onboarding application" });
   }
 }
-
-/**
- * TODO:
- */
-export async function deleteOnboardingApplication(
-  req: Request,
-  res: Response
-) {}

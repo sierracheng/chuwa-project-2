@@ -10,7 +10,6 @@ import type {
   IReference,
   GenderType,
 } from "../models/Types";
-import type { IUser } from "../models/User";
 
 /**
  * Create a new onboarding application

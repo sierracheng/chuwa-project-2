@@ -1,10 +1,57 @@
 import { type Request, type Response } from "express";
 import { reportError, validateEmailRequest } from "../utils/utils";
-import { RegistrationToken } from "../models/RegistrationToken";
+import { Employee, RegistrationToken } from "../models/RegistrationToken";
 import { sendEmail } from "../sendGrid/SendEmail";
 import crypto from "crypto";
 import { User } from "../models/User";
-import { email } from "zod";
+
+/**
+ * Get all employees from the database
+ * This is only for HR to get all employees from the database
+ * This is used to send the registration token to the employee
+ */
+export async function getAllEmployees(req: Request, res: Response) {
+  try {
+    const employees = await Employee.find();
+    return res.status(200).json({ employees });
+  } catch (error) {
+    return reportError(res, error, "getAllEmployees");
+  }
+}
+
+/**
+ * Add a new employee to the database
+ * This is only for HR to add a new employee to the database
+ * After add the potential employee, HR will send the registration token to the employee
+ */
+export async function createEmployee(req: Request, res: Response) {
+  try {
+    const { firstName, lastName, email } = req.body;
+    // Check if the email is valid
+    if (!validateEmailRequest(email)) {
+      return res.status(400).json({ message: "Email is not valid" });
+    }
+    // Check if the user already exists
+    const existingUser = await Employee.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists, cannot invite user to sign-up again.",
+      });
+    }
+    // Create a new user
+    const newUser = await Employee.create({
+      firstName,
+      lastName,
+      email,
+    });
+    return res.status(200).json({
+      message: "Added employee successfully",
+      employee: newUser,
+    });
+  } catch (error) {
+    return reportError(res, error, "createEmployee");
+  }
+}
 
 /**
  * TODO:
@@ -48,11 +95,13 @@ export async function createRegistrationToken(req: Request, res: Response) {
     // The token should be valid for 3 hours
     const expiresAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
     // Save the token to the database
-    await RegistrationToken.create({
-      email,
+    const newToken = await RegistrationToken.create({
       token,
+      email,
       expiresAt,
     });
+    // Save the token to the employee
+    await Employee.updateOne({ email }, { token: newToken._id });
     console.log("Saved registration token to DB");
     // signup url: http://localhost:xxxx/signup?email=xxx&token=xx
     const signupUrl = `${process.env.SIGN_UP_URL}?email=${encodeURIComponent(
@@ -79,13 +128,9 @@ export async function createRegistrationToken(req: Request, res: Response) {
   }
 }
 
-
 //Validate the registration token
 
-export async function validateRegistrationToken(
-  req: Request,
-  res: Response
-) {
+export async function validateRegistrationToken(req: Request, res: Response) {
   try {
     const { token } = req.body;
     console.log("Received request to validate registration token:", token);
@@ -101,7 +146,7 @@ export async function validateRegistrationToken(
     // Return true if the token is valid
     console.log("Registration token is valid");
     return res.status(200).json({
-      valid:true,
+      valid: true,
       email: registrationToken.email,
     });
   } catch (error) {
