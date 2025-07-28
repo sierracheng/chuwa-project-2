@@ -1,6 +1,7 @@
 import {
   createOnboardingApplicationAPI,
   getOnboardingStatusAPI,
+  updateAllOnboardingApplicationAPI,
 } from "@/back-end/api/onboardingAPI";
 import type { GenderType, VisaTypeUnion } from "@/back-end/models/Types";
 import Background from "@/components/Background";
@@ -65,6 +66,9 @@ export function OnboardingPage() {
   const [driverLicenseFile, setDriverLicenseFile] = useState<File | null>(null);
   const [optReceiptFile, setOptReceiptFile] = useState<File | null>(null);
 
+  // Submit button
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Get user id from local storage
   const userId = localStorage.getItem("userId") || "6883e8c0764c51eb6f2d6b00"; // For testing id
 
@@ -81,7 +85,10 @@ export function OnboardingPage() {
         navigate("/employee/homepage");
       }
       // If the onboarding status is "rejected", show the onboarding form with the previous data and HR feedback
-      else if (onboardingStatus === "rejected") {
+      else if (
+        onboardingStatus === "rejected" ||
+        onboardingStatus === "pending"
+      ) {
         // Reset the form
         const { onboardingData } = await resetForm(userId, form);
 
@@ -154,6 +161,8 @@ export function OnboardingPage() {
             <form
               onSubmit={form.handleSubmit(
                 async (data: z.infer<typeof formSchema>) => {
+                  // Set isSubmitting to true
+                  setIsSubmitting(true);
                   try {
                     // TODO: Handle file upload
                     const driverLicense = await handleUpload(
@@ -168,6 +177,7 @@ export function OnboardingPage() {
 
                     const payload = {
                       userId,
+                      status: "pending",
                       realName: {
                         firstName: data.firstName,
                         lastName: data.lastName,
@@ -222,14 +232,31 @@ export function OnboardingPage() {
                         },
                       },
                     };
-
-                    const res = await createOnboardingApplicationAPI(payload);
-                    console.log("Success:", res);
-
-                    alert("Application submitted successfully!");
+                    // If the onboarding status is "pending" or "rejected", update the onboarding application
+                    if (
+                      onboardingStatus === "pending" ||
+                      onboardingStatus === "rejected"
+                    ) {
+                      const res = await updateAllOnboardingApplicationAPI(
+                        payload
+                      );
+                      console.log("Success:", res);
+                      alert("Application updated successfully!");
+                      // Reload the page
+                      window.location.reload();
+                    } else {
+                      const res = await createOnboardingApplicationAPI(payload);
+                      console.log("Success:", res);
+                      alert("Application submitted successfully!");
+                      // Reload the page
+                      window.location.reload();
+                    }
                   } catch (err) {
                     console.error("Failed to submit:", err);
                     alert("Submission failed. Please try again.");
+                  } finally {
+                    // Set isSubmitting to false
+                    setIsSubmitting(false);
                   }
                 }
               )}
@@ -888,13 +915,21 @@ export function OnboardingPage() {
                   </button>
                 </div>
               )}
-
-              <button
-                type="submit"
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-              >
-                Submit
-              </button>
+              {/* Button will be disabled if onboarding status is "pending" */}
+              {onboardingStatus === "pending" && (
+                <div className="text-sm  text-red-500 flex justify-center gap-2">
+                  <p>Please wait for HR to review your application!</p>
+                </div>
+              )}
+              {onboardingStatus !== "pending" && (
+                <button
+                  type="submit"
+                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
+                >
+                  Submit
+                </button>
+              )}
             </form>
           </Form>
         </Card>

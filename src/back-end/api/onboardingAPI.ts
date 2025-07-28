@@ -107,42 +107,50 @@ export async function updateOnboardingFeedbackAPI(
 /**
  * Update all the onboarding application data
  */
-export async function updateAllOnboardingApplicationAPI(input: IUser) {
+export async function updateAllOnboardingApplicationAPI(input: {
+  userId: string;
+  ssn: string;
+  dateOfBirth: Date;
+  gender: GenderType;
+  realName: IPersonName;
+  documents: IDocumentInfo;
+  address: IAddress;
+  contactInfo: IContactInfo;
+  employment: IEmployment;
+  emergencyContact: IEmergencyContact;
+  reference: IReference;
+}) {
   const {
-    _id,
+    userId,
     ssn,
     dateOfBirth,
     gender,
     realName,
-    onboardingApplication,
+    documents,
     address,
     contactInfo,
     employment,
     emergencyContact,
+    reference,
   } = input;
   try {
     const response = await axios.put(
-      `http://localhost:3004/onboarding-applications/${_id}`,
+      `http://localhost:3004/onboarding-applications/${userId}`,
       {
-        userId: _id,
+        userId,
         ssn,
         dateOfBirth,
         gender,
         realName,
-        documents: onboardingApplication.documents,
+        documents,
         address,
         contactInfo,
         employment,
         emergencyContact,
-        reference: onboardingApplication.reference,
-        status: onboardingApplication.status,
-        feedback: onboardingApplication.feedback,
+        reference,
       }
     );
-    return {
-      status_code: 200,
-      status_message: "update successful"
-    };
+    return response.data;
   } catch (error) {
     console.error("Error updating onboarding application:", error);
     throw error;

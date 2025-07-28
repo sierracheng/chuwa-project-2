@@ -1,12 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
-import {
-  type IDocumentInfo,
-  type IReference,
-} from "./Types";
-import {
-  DocumentSchema,
-  ReferenceSchema,
-} from "./Subschema";
+import { type IDocumentInfo, type IReference } from "./Types";
+import { DocumentSchema, ReferenceSchema } from "./Subschema";
 
 export interface IOnboardingApplication extends Document {
   _id: Types.ObjectId;

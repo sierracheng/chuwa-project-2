@@ -72,7 +72,9 @@ export async function createOnboardingApplication(req: Request, res: Response) {
     });
 
     if (req.body.documents?.workAuthorizationUrl) {
-      const existingVisa = await VisaStatusManagement.findOne({ user: req.body.userId });
+      const existingVisa = await VisaStatusManagement.findOne({
+        user: req.body.userId,
+      });
       if (!existingVisa) {
         await VisaStatusManagement.create({
           user: req.body.userId,
@@ -163,7 +165,9 @@ export async function updateOnboardingApplication(req: Request, res: Response) {
       onboardingApplication: onboardingApplication?._id,
     });
     if (req.body.documents?.workAuthorizationUrl) {
-      let existingVisa = await VisaStatusManagement.findOne({ user: req.body.userId });
+      let existingVisa = await VisaStatusManagement.findOne({
+        user: req.body.userId,
+      });
       if (!existingVisa) {
         existingVisa = await VisaStatusManagement.create({
           user: req.body.userId,
@@ -185,7 +189,7 @@ export async function updateOnboardingApplication(req: Request, res: Response) {
             uploadedAt: new Date(),
           };
           existingVisa.optReceipt.status = "pending";
-        };
+        }
       }
       await existingVisa.save();
     }
@@ -238,4 +242,4 @@ export async function getOnboardingApplication(req: Request, res: Response) {
 export async function deleteOnboardingApplication(
   req: Request,
   res: Response
-) { }
+) {}
