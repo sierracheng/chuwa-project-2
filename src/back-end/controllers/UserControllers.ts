@@ -1,7 +1,6 @@
 import { type Request, type Response } from "express";
 import { User } from "../models/User";
 import { OnboardingApplication } from "../models/OnboardingApplication";
-import { on } from "events";
 
 /**
  * DONE:
@@ -69,17 +68,21 @@ export async function getEmployeesData(req: Request, res: Response) {
 
     try {
         const employees = await User.find({ role: 'Employee' });
-        //const userDocument = await OnboardingApplication.findOne({ userId: id })
+        const allApplications = await OnboardingApplication.find();
         if (!employees) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
-        // if (userDocument) {
-        //     user.onboardingApplication = userDocument
-        // }
+        const employeesWithDocs = employees.map((employee) => {
+            const app = allApplications.find(app => app.userId.toString() === employee._id.toString());
+            return {
+                ...employee.toObject(),
+                onboardingApplication: app || null,
+            };
+        });
         return res.status(200).json({
             success: true,
             message: "Employee data received successfully",
-            data: employees
+            data: employeesWithDocs
         })
     } catch (error) {
         console.error("Error fetching user data:", error);

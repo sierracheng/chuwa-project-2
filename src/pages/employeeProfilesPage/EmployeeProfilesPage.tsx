@@ -31,6 +31,11 @@ export type EmployeeProfiles = {
     ssn: number
     phoneNumber: string
     email: string
+    fullName: {
+        firstName: string
+        lastName: string
+        preferredName: string
+    }
 }
 
 const columns: ColumnDef<EmployeeProfiles>[] = [
@@ -95,6 +100,7 @@ const columns: ColumnDef<EmployeeProfiles>[] = [
 ]
 
 export function EmployeeProfilesPage() {
+    const [allEmployees, setAllEmployees] = useState<EmployeeProfiles[]>([]);
     const [employees, setEmployees] = useState<EmployeeProfiles[]>([])
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -103,6 +109,32 @@ export function EmployeeProfilesPage() {
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    useEffect(() => {
+        const filtered = allEmployees.filter(emp => {
+            const { firstName, lastName, preferredName } = emp.fullName || {};
+            const lowerSearch = searchTerm.toLowerCase();
+            return (
+                firstName.toLowerCase().includes(lowerSearch) ||
+                lastName.toLowerCase().includes(lowerSearch) ||
+                preferredName.toLowerCase().includes(lowerSearch)
+            );
+        });
+        setEmployees(filtered);
+    }, [debouncedSearch, allEmployees]);
+
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchTerm);
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm]);
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -117,8 +149,14 @@ export function EmployeeProfilesPage() {
                         ssn: user.ssn,                  // ensure it's a number
                         phoneNumber: user.contactInfo?.cellPhone || "",
                         email: user.email,
+                        fullName: {
+                            firstName: user.realName?.firstName || "",
+                            lastName: user.realName?.lastName || "",
+                            preferredName: user.realName?.preferredName || "",
+                        }
                     }));
-                    setEmployees(employeeProfiles)
+                    setAllEmployees(employeeProfiles);
+                    setEmployees(employeeProfiles);
                 }
 
 
@@ -157,14 +195,10 @@ export function EmployeeProfilesPage() {
                 <input
                     type="text"
                     placeholder="Search by first name, last name, preferred name..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
-                <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm hover:bg-gray-100">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707l-5.414 5.414A1 1 0 0014 12v5.586l-4 4V12a1 1 0 00-.293-.707L4.293 6.707A1 1 0 014 6V4z" />
-                    </svg>
-                    Filter
-                </button>
             </div>
 
             <div className="bg-white shadow-sm rounded-lg overflow-hidden">
