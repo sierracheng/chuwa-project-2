@@ -8,13 +8,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Card } from "@/components/Card/Card";
 import {
   createEmployeeAPI,
   createRegistrationTokenAPI,
   getAllEmployeesAPI,
+  getTokenAPI,
 } from "@/back-end/api/registrationTokenAPI";
 
 const RegistrationToken = () => {
@@ -26,8 +27,10 @@ const RegistrationToken = () => {
       firstName: string;
       lastName: string;
       email: string;
+      token: string;
     }[]
   >([]);
+  const employeesRef = useRef(employees);
   const [error, setError] = useState<string>("");
   const [disabledButtons, setDisabledButtons] = useState<Set<string>>(
     new Set()
@@ -45,7 +48,12 @@ const RegistrationToken = () => {
     email: "",
   });
 
-  // Fetch all employees from the database
+  // Update the employeesRef when the employees state changes
+  useEffect(() => {
+    employeesRef.current = employees;
+  }, [employees]);
+
+  // Initial fetch of employees
   useEffect(() => {
     const fetchEmployees = async () => {
       const rawEmployees = await getAllEmployeesAPI();
@@ -55,6 +63,28 @@ const RegistrationToken = () => {
 
     fetchEmployees();
   }, []);
+
+  // Fetch tokens
+  useEffect(() => {
+    const fetchTokenAndUpdate = async (email: string) => {
+      const response = await getTokenAPI(email);
+      if (response.success) {
+        setEmployees((prev) =>
+          prev.map((emp) =>
+            emp.email === email
+              ? {
+                  ...emp,
+                  token: response.token,
+                }
+              : emp
+          )
+        );
+      }
+    };
+    employeesRef.current.forEach((emp) => {
+      fetchTokenAndUpdate(emp.email);
+    });
+  }, [employees]);
 
   // Add a new employee to the database
   const handleAddEmployee = async (
@@ -144,13 +174,25 @@ const RegistrationToken = () => {
           </TableHeader>
           <TableBody>
             {employees.map((employee) => (
-              <TableRow key={employee._id}>
+              <TableRow
+                key={employee._id}
+                className="border-b-1 border-gray-300"
+              >
                 <TableCell className="text-left">
                   <div className="flex items-center gap-2">
                     {employee.firstName} {employee.lastName}
                   </div>
                 </TableCell>
-                <TableCell className="text-left">{employee.email}</TableCell>
+                <TableCell className="text-left">
+                  <div className="flex flex-col">
+                    <span>{employee.email}</span>
+                    <span className="text-sm text-gray-500">
+                      {employee.token
+                        ? "Token: " + employee.token
+                        : "No token sent or expired"}
+                    </span>
+                  </div>
+                </TableCell>
                 <TableCell className="text-left">
                   <Button
                     className="bg-blue-600 text-white hover:bg-blue-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"

@@ -69,3 +69,19 @@ export async function getAllEmployeesAPI() {
     return { success: false, message: "Failed to get all employees" };
   }
 }
+
+/**
+ * Get the token from the database
+ * This is used to get the token from the database
+ */
+export async function getTokenAPI(email: string) {
+  try {
+    const response = await axios.get(
+      `http://localhost:3004/registration-token/token?email=${email}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error getting token:", error);
+    return { success: false, message: "Failed to get token" };
+  }
+}
