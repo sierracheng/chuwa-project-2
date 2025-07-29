@@ -6,6 +6,13 @@ import { getUserDataAPI } from '@/back-end/api/userAPI';
 import { updateAllOnboardingApplicationAPI } from '@/back-end/api/onboardingAPI';
 import { toast } from 'sonner';
 import { uploadFile } from '@/back-end/api/uploadFile';
+import { Visa } from '@/back-end/models/Types';
+
+
+const visaOptions = Object.entries(Visa).map(([key, label]) => ({
+    value: key,
+    label: label === "F1_CPT_OPT" ? "F1" : label,
+}));
 
 export function PersonalInformationPage() {
     const [isEditing, setIsEditing] = useState(false);
@@ -241,14 +248,11 @@ export function PersonalInformationPage() {
                         <div className="grid grid-cols-2 gap-3">
                             <select value={formState.employment?.visaTitle || ''} onChange={(e) => handleNestedChange('employment', 'visaTitle', e.target.value)} className="border rounded p-1">
                                 <option value="">Visa Title</option>
-                                <option value="Citizen">Citizen</option>
-                                <option value="Green Card">Green Card</option>
-                                <option value="International">International</option>
-                                <option value="H1B">H1B</option>
-                                <option value="L2">L2</option>
-                                <option value="F1 (CPT, OPT)">F1 (CPT, OPT)</option>
-                                <option value="H4">H4</option>
-                                <option value="Other">Other</option>
+                                {visaOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
                             </select>
                             <input type="date" value={formState.employment?.startDate ? new Date(formState.employment.startDate).toISOString().split('T')[0] : ''} onChange={(e) => handleNestedChange('employment', 'startDate', e.target.value)} className="border rounded p-1" />
                             <input type="date" value={formState.employment?.endDate ? new Date(formState.employment.endDate).toISOString().split('T')[0] : ''} onChange={(e) => handleNestedChange('employment', 'endDate', e.target.value)} className="border rounded p-1" />
