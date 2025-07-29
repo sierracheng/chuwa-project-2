@@ -114,19 +114,6 @@ export function PersonalInformationPage() {
             setFormState(userData || {});
         }
     };
-    //   userId: string;
-    //   ssn: string;
-    //   dateOfBirth: Date;
-    //   gender: GenderType;
-    //   realName: IPersonName;
-    //   documents: IDocumentInfo;
-    //   address: IAddress;
-    //   contactInfo: IContactInfo;
-    //   employment: IEmployment;
-    //   emergencyContact: IEmergencyContact;
-    //   reference: IReference;
-    //   status: string;
-    //   feedback: string;
     const handleSave = async () => {
         setIsEditing(false);
         if (!formState._id) {
