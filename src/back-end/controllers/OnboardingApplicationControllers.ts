@@ -122,7 +122,7 @@ export async function createOnboardingApplication(req: Request, res: Response) {
  */
 export async function updateOnboardingApplication(req: Request, res: Response) {
   try {
-    const userId = req.body.userId;
+    const userId = req.params.userId;
 
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
