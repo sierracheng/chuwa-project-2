@@ -3,6 +3,7 @@ import {
   createEmployee,
   createRegistrationToken,
   getAllEmployees,
+  getToken,
 } from "../controllers/RegistrationToken";
 
 const router: Router = express.Router();
@@ -26,6 +27,13 @@ router.post("/registration-token/create-employee", (req, res) => {
  */
 router.get("/registration-token/employees", (req, res) => {
   getAllEmployees(req, res);
+});
+
+/**
+ * Get the token from the database
+ */
+router.get("/registration-token/token", (req, res) => {
+  getToken(req, res);
 });
 
 export default router;

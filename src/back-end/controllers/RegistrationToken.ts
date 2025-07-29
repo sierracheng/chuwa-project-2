@@ -117,6 +117,12 @@ export async function createRegistrationToken(req: Request, res: Response) {
         text: `Please click the link below to sign up your account: ${signupUrl}`,
         html: `<p>Please click the link below to sign up your account: <a href="${signupUrl}">${signupUrl}</a></p>`,
       });
+      // Return the token, createdAt, and expiresAt
+      return res.status(200).json({
+        token,
+        createdAt: newToken.createdAt,
+        expiresAt: newToken.expiresAt,
+      });
     } catch (error) {
       console.error("Failed to send email:", error);
     }
@@ -129,7 +135,6 @@ export async function createRegistrationToken(req: Request, res: Response) {
 }
 
 //Validate the registration token
-
 export async function validateRegistrationToken(req: Request, res: Response) {
   try {
     const { token } = req.body;
@@ -151,5 +156,29 @@ export async function validateRegistrationToken(req: Request, res: Response) {
     });
   } catch (error) {
     return reportError(res, error, "validateRegistrationToken");
+  }
+}
+
+/**
+ * Get the token from the database
+ * This is used to get the token from the database
+ */
+export async function getToken(req: Request, res: Response) {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    const token = await RegistrationToken.findOne({ email });
+    if (!token) {
+      return res.status(400).json({ message: "Token not found" });
+    }
+    return res.status(200).json({
+      token,
+      createdAt: token.createdAt,
+      expiresAt: token.expiresAt,
+    });
+  } catch (error) {
+    return reportError(res, error, "getToken");
   }
 }
