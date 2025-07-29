@@ -68,8 +68,8 @@ export function VisaStatusEmployeePage() {
 
     if (visaType !== 'F1') {
         return (
-            <div className="container mx-auto p-4 space-y-6">
-                <h1 className="text-2xl font-bold text-left">Visa Management</h1>
+            <div className="container mx-auto p-2 space-y-4 lg:p-4 lg:space-y-6">
+                <h1 className="text-xl lg:text-2xl font-bold text-left">Visa Management</h1>
                 <h2 className="text-red-500">You are not eligible to upload documents for this visa type.</h2>
             </div>
         )
@@ -89,8 +89,8 @@ export function VisaStatusEmployeePage() {
     }
 
     return (
-        <div className="container mx-auto p-4 space-y-6">
-            <h2 className="text-[40px] font-bold text-left">Visa Status Management</h2>
+        <div className="container mx-auto p-2 space-y-4 lg:p-4 lg:space-y-6">
+            <h2 className="sm:text-lg lg:text-[40px] font-bold text-left">Visa Status Management</h2>
             <p className="text-gray-600 text-left">
                 Please upload the required documents for your visa status.
                 <br />

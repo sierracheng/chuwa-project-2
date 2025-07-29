@@ -64,7 +64,7 @@ export function NavigationBar() {
   const hrLinks = [
     {
       label: "Home",
-      href: "/home",
+      href: "/hr/homepage",
       icon: (
         <IconCategory className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
@@ -113,14 +113,14 @@ export function NavigationBar() {
 
   return (
     <Sidebar open={open} setOpen={setOpen}>
-      <SidebarBody className="justify-between gap-10">
+      <SidebarBody className="justify-between gap-10 bg-gray-100 dark:bg-gray-900">
         <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
           {open && <img src="/images/SmallLogo.png" alt="Logo" className="h-7 w-20 mt-8 ml-1" />}
           <div className="flex flex-col items-left justify-between mt-5">
             <SidebarLink
               link={{
                 label: Name,
-                href: "/employee/homepage",
+                href: role === "HR" ? "/hr/homepage": "/employee/homepage",
                 icon: (
                   <div className={`${open ? 'w-12 h-12' : 'w-7 h-7'} rounded-full overflow-hidden bg-gray-200 transition-all duration-150`}>
                   <img

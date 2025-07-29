@@ -7,8 +7,8 @@ import { InProgress } from './InProgress'
 export function VisaStatusPage() {
 
     return (
-        <div className='flex flex-col min-h-screen pl-12 py-8'>
-        <h1 className='text-[40px] text-left font-semibold mb-6'>Visa Status Management</h1>
+        <div className='flex flex-col min-h-screen py-4 lg:pl-12 lg:py-8'>
+        <h1 className='text-xl lg:text-[40px] text-left font-semibold mb-6'>Visa Status Management</h1>
         <Tabs defaultValue="inprogress" className="w-full">
         <TabsList className="mb-4 w-1/3">
           <TabsTrigger value="inprogress">In Progress</TabsTrigger>
