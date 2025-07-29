@@ -114,12 +114,43 @@ export function PersonalInformationPage() {
             setFormState(userData || {});
         }
     };
-
+    //   userId: string;
+    //   ssn: string;
+    //   dateOfBirth: Date;
+    //   gender: GenderType;
+    //   realName: IPersonName;
+    //   documents: IDocumentInfo;
+    //   address: IAddress;
+    //   contactInfo: IContactInfo;
+    //   employment: IEmployment;
+    //   emergencyContact: IEmergencyContact;
+    //   reference: IReference;
+    //   status: string;
+    //   feedback: string;
     const handleSave = async () => {
         setIsEditing(false);
-        const tryUpdateUserData = await updateAllOnboardingApplicationAPI(formState as IUser);
+        if (!formState._id) {
+            console.error("Missing userId in formState");
+            return;
+        }
 
-        if (tryUpdateUserData.status_code === 200) {
+        const tryUpdateUserData = await updateAllOnboardingApplicationAPI({
+            userId: formState._id.toString(),
+            ssn: formState.ssn || "",
+            dateOfBirth: formState.dateOfBirth || new Date(),
+            gender: formState.gender || "Other", // fallback value
+            realName: formState.realName!,
+            documents: formState.onboardingApplication?.documents!,
+            address: formState.address!,
+            contactInfo: formState.contactInfo!,
+            employment: formState.employment!,
+            emergencyContact: formState.emergencyContact!,
+            reference: formState.onboardingApplication?.reference!,
+            status: formState.onboardingApplication?.status || "Pending",
+            feedback: formState.onboardingApplication?.feedback || "",
+        });
+
+        if (tryUpdateUserData) {
             toast.success('Update successful', { duration: 2000 });
             setUserData(formState as IUser);
         } else {
