@@ -19,7 +19,7 @@ export const typeDefs = gql`
         GreenCard
         H1B
         L2
-        F1_CPT_OPT
+        F1
         H4
         Other
     }
