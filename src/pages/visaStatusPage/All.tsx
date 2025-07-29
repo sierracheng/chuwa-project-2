@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/table";
 
 import {
-    getCompletedVisaEmployeesAPI
+    getAllVisaEmployeesAPI
 } from "@/back-end/api/visaStepsAPI"; 
 import { sendEmailAPI } from "@/back-end/api/email";
 
@@ -93,6 +93,50 @@ export const columns = (
     accessorKey: "nextStep",
     header: "Next Step",
   },
+  {
+    id: "documents",
+    header: "Documents",
+    cell: ({ row }) => {
+        const steps = row.original.visaSteps;
+
+        const display = (stepKey: keyof typeof steps, label: string) => {
+            const doc = steps[stepKey]?.document;
+            if(!doc || !doc.url) {
+                return <span className="text-gray-500">None</span>;
+            }
+            return (
+                <div key={stepKey} className="flex flex-col text-sm">
+                    <span className="font-semibold">{label}:</span>
+                    <div className="flex gap-2">
+                        <a
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:underline"
+                        >
+                          View Document
+                        </a>
+                        <a
+                            href={doc.url}
+                            download
+                            className="ml-2 text-blue-500 hover:underline"
+                        >
+                            Download
+                        </a>
+                    </div>
+                </div>
+            );
+        };
+        return (
+            <div className="flex flex-col gap-2">
+                {display("optReceipt", "OPT Receipt")}
+                {display("optEAD", "OPT EAD")}
+                {display("i983", "I-983")}
+                {display("i20", "I-20")}
+            </div>
+        );
+    },
+  },
 ];
 
 export function All() {
@@ -110,7 +154,8 @@ export function All() {
   const fetchVisaRows = async () => {
     setLoading(true);
       try {
-        const result = await getCompletedVisaEmployeesAPI();
+        const result = await getAllVisaEmployeesAPI();
+        console.log("All Visa API result:", result);
         if (!result.success) {
           setError("Failed to fetch visa employees.");
           return;
@@ -139,9 +184,8 @@ export function All() {
           VisaStartDate: formatDate(e.employment?.startDate) || "Unknown",
           VisaEndDate: formatDate(e.employment?.endDate) || "Unknown",
           daysRemaining: e.employment?.daysRemaining ?? 0,
-          nextStep: e.nextStep,
-          currentStep: e.currentStep,
           visaSteps: e.visaSteps,
+          nextStep: e.nextStep || "Unknown",
         };
       });
         console.log("Transformed data:", transformed);

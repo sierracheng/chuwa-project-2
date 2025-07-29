@@ -159,7 +159,7 @@ export const typeDefs = gql`
         getVisaStatusManagementByUserId(userId: ID!): VisaStatusManagement
         getAllVisaStatuses: [VisaStatusManagement!]!
         getInProgressVisaEmployees: [VisaEmployee!]!
-        getCompletedVisaEmployees: [VisaEmployee!]!
+        getAllVisaEmployees: [VisaEmployee!]!
         getVisaEmployeesByStatus(status: Status!): [VisaEmployee!]!
     }
 

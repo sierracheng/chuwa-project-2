@@ -2,7 +2,7 @@ import {
     GET_VISA_STATUS_BY_USER_ID,
     GET_ALL_VISA_STATUSES,
     GET_IN_PROGRESS_VISA_EMPLOYEES,
-    GET_COMPLETED_VISA_EMPLOYEES,
+    GET_ALL_VISA_EMPLOYEES,
 } from '../mutations/Visa';
 
 
@@ -274,14 +274,14 @@ export async function getInProgressVisaEmployeesAPI() {
     };
 }
 
-export async function getCompletedVisaEmployeesAPI() {
+export async function getAllVisaEmployeesAPI() {
     const response = await fetch("http://localhost:3004/graphql", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            query: GET_COMPLETED_VISA_EMPLOYEES,
+            query: GET_ALL_VISA_EMPLOYEES,
         }),
     });
 
@@ -293,7 +293,7 @@ export async function getCompletedVisaEmployeesAPI() {
 
     return {
         success: true,
-        employees: data.data.getCompletedVisaEmployees,
+        employees: data.data.getAllVisaEmployees,
     };
 }
 

@@ -50,9 +50,9 @@ export const GET_IN_PROGRESS_VISA_EMPLOYEES = `
   }
 `;
 
-export const GET_COMPLETED_VISA_EMPLOYEES = `
-  query GetCompletedVisaEmployees {
-    getCompletedVisaEmployees {
+export const GET_ALL_VISA_EMPLOYEES = `
+  query GetAllVisaEmployees {
+    getAllVisaEmployees {
       _id
       userId
       realName { firstName lastName }

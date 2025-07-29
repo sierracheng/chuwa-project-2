@@ -6,3 +6,4 @@ export * from "./onboardingPage";
 export * from './personalInformation';
 export * from "./errorPage";
 export * from "./visaStatusEmployeePage";
+export * from './HomePage';

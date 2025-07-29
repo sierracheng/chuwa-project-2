@@ -133,17 +133,14 @@ export const visaResolvers = {
         });
     },
 
-    getCompletedVisaEmployees: async () => {
+    getAllVisaEmployees: async () => {
       const visaRecords = await VisaStatusManagement.find({})
         .populate("user", "realName email employment username")
         .lean();
 
-      const completed = visaRecords.filter((record) => {
-        const steps = [record.optReceipt, record.optEAD, record.i983, record.i20];
-        return steps.every((step) => normalizeStatus(step?.status) === "approved");
-      });
-
-      return completed.map((record) => {
+      return visaRecords
+      .filter((record) => record.user)
+      .map((record) => {
         const { user, optReceipt, optEAD, i983, i20, _id } = record;
         const populatedUser = user as any;
 
@@ -170,7 +167,6 @@ export const visaResolvers = {
           },
         };
 
-
         return {
           _id,
           userId: populatedUser._id,
@@ -179,7 +175,7 @@ export const visaResolvers = {
           username: populatedUser.username,
           employment: populatedUser.employment,
           visaSteps,
-          nextStep: "Complete",
+          nextStep: determineNextStep(visaSteps),
         };
       });
     },
