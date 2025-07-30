@@ -24,6 +24,7 @@ import {
   getSortedRowModel,
   type ColumnDef,
 } from "@tanstack/react-table";
+import { validateTokenAPI } from "@/back-end/api/validateTokenAPI";
 
 type Employee = {
   _id: string;
@@ -78,10 +79,26 @@ const RegistrationToken = () => {
     const fetchEmployees = async () => {
       setIsLoading(true);
       const rawEmployees = await getAllEmployeesAPI();
-      const updatedEmployees = rawEmployees.employees;
+
+      const updatedEmployees = await Promise.all(
+        rawEmployees.employees.map(async (employee: Employee) => {
+          try {
+            const link = employee.link;
+            const parsedUrl = new URL(link);
+            const token = parsedUrl.searchParams.get("token");
+            const isValid = await validateTokenAPI(token || "");
+            return isValid ? employee : { ...employee, token: "", link: "" };
+          } catch (err) {
+            console.log(err);
+            return { ...employee, token: "", link: "" };
+          }
+        })
+      );
+
       setAllEmployees(updatedEmployees);
       setIsLoading(false);
     };
+
     fetchEmployees();
   }, []);
 
@@ -231,7 +248,10 @@ const RegistrationToken = () => {
                     <Button
                       className="bg-blue-600 text-white hover:bg-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={() => handleGenerateToken(employee.email)}
-                      disabled={disabledButtons.has(employee.email)}
+                      disabled={
+                        disabledButtons.has(employee.email) ||
+                        employee.status === "Submitted"
+                      }
                     >
                       Generate Token and Send Email
                       {disabledButtons.has(employee.email) &&
