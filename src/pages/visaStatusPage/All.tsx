@@ -107,7 +107,7 @@ export const columns = (
             return (
                 <div key={stepKey} className="flex flex-col text-sm">
                     <span className="font-semibold">{label}:</span>
-                    <div className="flex gap-2">
+                    <div className="flex justify-between gap-2 w-full">
                         <a
                             href={doc.url}
                             target="_blank"
@@ -242,7 +242,7 @@ export function All() {
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((group) => (
-              <TableRow key={group.id}>
+              <TableRow key={group.id} className="text-left">
                 {group.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -259,7 +259,7 @@ export function All() {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="text-left">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
