@@ -124,25 +124,29 @@ const OnboardingPage = () => {
       {/* All and Three Status Buttons */}
       <div className="flex flex-row items-center gap-8 mb-4">
         <Button
-          className="bg-gray-600 text-white hover:bg-gray-300 cursor-pointer"
+          variant="outline"
+          className="border-gray-500 bg-transparent text-gray-600 hover:bg-gray-100 cursor-pointer"
           onClick={() => setSelectedStatus(null)}
         >
           <span>All</span>
         </Button>
         <Button
-          className="bg-blue-600 text-white hover:bg-blue-300 cursor-pointer"
+          variant="outline"
+          className="border-yellow-500 bg-transparent text-yellow-600 hover:bg-yellow-100 cursor-pointer"
           onClick={() => setSelectedStatus("pending")}
         >
           <span>Pending</span>
         </Button>
         <Button
-          className="bg-red-600 text-white hover:bg-red-300 cursor-pointer"
+          variant="outline"
+          className="border-red-500 bg-transparent text-red-600 hover:bg-red-100 cursor-pointer"
           onClick={() => setSelectedStatus("rejected")}
         >
           <span>Rejected</span>
         </Button>
         <Button
-          className="bg-green-600 text-white hover:bg-green-300 cursor-pointer"
+          variant="outline"
+          className="border-green-500 bg-transparent text-green-600 hover:bg-green-100 cursor-pointer"
           onClick={() => setSelectedStatus("approved")}
         >
           <span>Approved</span>
