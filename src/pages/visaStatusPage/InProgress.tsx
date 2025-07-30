@@ -130,7 +130,7 @@ export const columns = (
           {showNotifyButton ? (
             <Button
               variant="secondary"
-              className="mt-2"
+              className="mt-2 bg-blue-500 text-white hover:bg-blue-600"
               onClick={() => handleNotification(original)}
             >
               Send Notification
@@ -142,6 +142,7 @@ export const columns = (
                   variant="outline"
                   size="sm"
                   onClick={() => handleApprove(original)}
+                  className="bg-blue-500 text-white hover:bg-blue-600"
                 >
                   Approve
                 </Button>
@@ -149,6 +150,7 @@ export const columns = (
                   variant="outline"
                   size="sm"
                   onClick={() => handleReject(original)}
+                  className="hover:bg-red-600"
                 >
                   Reject
                 </Button>
