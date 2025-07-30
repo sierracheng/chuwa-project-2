@@ -323,7 +323,7 @@ export function InProgress() {
             {table.getHeaderGroups().map((group) => (
               <TableRow key={group.id}>
                 {group.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className='text-left'>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -340,7 +340,7 @@ export function InProgress() {
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="text-left">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
