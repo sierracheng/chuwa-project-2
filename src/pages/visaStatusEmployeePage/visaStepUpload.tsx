@@ -189,7 +189,7 @@ export const VisaStepUpload: React.FC<VisaStepUploadProps> = (
 
                 {selectedFile && (
                     <div className="text-sm text-gray-500 mt-2">
-                        Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} MB)
+                        Selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
                     </div>
                 )}
             </div>

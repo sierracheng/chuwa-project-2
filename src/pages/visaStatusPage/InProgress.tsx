@@ -142,7 +142,7 @@ export const columns = (
                   variant="outline"
                   size="sm"
                   onClick={() => handleApprove(original)}
-                  className="bg-blue-500 text-white hover:bg-blue-600"
+                  className="bg-blue-500 text-white hover:bg-blue-600 hover:text-white"
                 >
                   Approve
                 </Button>
