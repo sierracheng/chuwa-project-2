@@ -216,9 +216,14 @@ export function OnboardingPage() {
                           visaTitle: data.workAuth.type as VisaTypeUnion,
                           startDate: new Date(data.workAuth.startDate),
                           endDate: new Date(data.workAuth.endDate),
-                          daysRemaining:
-                            new Date(data.workAuth.endDate).getTime() -
-                            new Date().getTime(),
+                          daysRemaining: Math.max(
+                            0,
+                            Math.ceil(
+                              (new Date(data.workAuth.endDate).getTime() -
+                                new Date().getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            )
+                          ),
                         },
                         documents: {
                           profilePictureUrl: profile,

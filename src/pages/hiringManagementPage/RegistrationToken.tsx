@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { Card } from "@/components/Card/Card";
 import {
@@ -16,60 +16,108 @@ import {
   createRegistrationTokenAPI,
   getAllEmployeesAPI,
 } from "@/back-end/api/registrationTokenAPI";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  type ColumnDef,
+} from "@tanstack/react-table";
+
+type Employee = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  token: string;
+  link: string;
+  status: string;
+};
+
+// Define table columns
+const columns: ColumnDef<Employee>[] = [
+  {
+    header: "Employee",
+    id: "fullName",
+    accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+  },
+  {
+    header: "Email",
+    accessorKey: "email",
+  },
+  {
+    header: "Status",
+    accessorKey: "status",
+  },
+  {
+    header: "Token",
+    accessorKey: "token",
+  },
+  {
+    header: "Register Link",
+    accessorKey: "link",
+  },
+];
 
 const RegistrationToken = () => {
-  // Local State
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingEmployee, setIsAddingEmployee] = useState(false);
   const [showAddEmployee, setShowAddEmployee] = useState(false);
-  const [employees, setEmployees] = useState<
-    {
-      _id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-      token: string;
-      link: string;
-      status: string;
-    }[]
-  >([]);
-  const employeesRef = useRef(employees);
   const [error, setError] = useState<string>("");
   const [disabledButtons, setDisabledButtons] = useState<Set<string>>(
     new Set()
   );
   const [countdown, setCountdown] = useState<Record<string, number>>({});
 
-  // Employee Form
-  const [employeeForm, setEmployeeForm] = useState<{
-    firstName: string;
-    lastName: string;
-    email: string;
-  }>({
-    firstName: "",
-    lastName: "",
-    email: "",
-  });
-
-  // Update the employeesRef when the employees state changes
-  useEffect(() => {
-    employeesRef.current = employees;
-  }, [employees]);
-
-  // Initial fetch of employees
+  // Fetch employees initially
   useEffect(() => {
     const fetchEmployees = async () => {
       setIsLoading(true);
       const rawEmployees = await getAllEmployeesAPI();
       const updatedEmployees = rawEmployees.employees;
-      setEmployees(updatedEmployees);
+      setAllEmployees(updatedEmployees);
       setIsLoading(false);
     };
-
     fetchEmployees();
   }, []);
 
-  // Add a new employee to the database
+  // Debounce logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // React Table instance
+  const table = useReactTable({
+    data: allEmployees,
+    columns,
+    state: {
+      globalFilter: debouncedSearch,
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: (row, columnId, filterValue) => {
+      const fullName =
+        `${row.original.firstName} ${row.original.lastName}`.toLowerCase();
+      return fullName.includes(filterValue.toLowerCase());
+    },
+  });
+
+  // Add Employee form
+  const [employeeForm, setEmployeeForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+  });
+
   const handleAddEmployee = async (
     firstName: string,
     lastName: string,
@@ -78,12 +126,9 @@ const RegistrationToken = () => {
     try {
       const response = await createEmployeeAPI(firstName, lastName, email);
       if (response.success) {
-        console.log("Employee added successfully");
         setShowAddEmployee(false);
         window.location.reload();
-      } else if (response.success === false) {
-        console.log("Error adding employee");
-        console.log(response);
+      } else {
         setError(response.message);
       }
     } catch (error) {
@@ -93,20 +138,15 @@ const RegistrationToken = () => {
     }
   };
 
-  // Generate a new token and send it to the employee
   const handleGenerateToken = async (email: string) => {
     const HREmail = "akiko948436464@gmail.com";
-
-    // Disable the button immediately
     setDisabledButtons((prev) => new Set(prev).add(email));
     setCountdown((prev) => ({ ...prev, [email]: 5 }));
 
-    // Start countdown, after 5 seconds, reload the page
     let count = 5;
     const interval = setInterval(() => {
       count -= 1;
       setCountdown((prev) => ({ ...prev, [email]: count }));
-
       if (count <= 0) {
         clearInterval(interval);
         setDisabledButtons((prev) => {
@@ -125,7 +165,6 @@ const RegistrationToken = () => {
 
     try {
       const response = await createRegistrationTokenAPI(HREmail, email);
-      console.log(response.link);
       if (response.success) {
         console.log("Token generated successfully");
       }
@@ -136,10 +175,15 @@ const RegistrationToken = () => {
 
   return (
     <div className="w-full relative">
-      {/* Top Bar */}
+      {/* Search + Add Bar */}
       <div className="flex items-center justify-between py-4 mb-4">
         <div className="flex flex-row items-center gap-4 mb-6 w-full max-w-2xl">
-          <Input placeholder="Search by name..." className="max-w-sm" />
+          <Input
+            placeholder="Search by name..."
+            className="max-w-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <Button
             className="bg-blue-600 text-white hover:bg-blue-300 cursor-pointer"
             onClick={() => setShowAddEmployee(true)}
@@ -167,15 +211,10 @@ const RegistrationToken = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employees.map((employee) => (
-                <TableRow
-                  key={employee._id}
-                  className="border-b-1 border-gray-300"
-                >
+              {table.getRowModel().rows.map(({ original: employee }) => (
+                <TableRow key={employee._id}>
                   <TableCell className="text-left">
-                    <div className="flex items-center gap-2">
-                      {employee.firstName} {employee.lastName}
-                    </div>
+                    {employee.firstName} {employee.lastName}
                   </TableCell>
                   <TableCell className="text-left">
                     <div className="flex flex-col">
@@ -187,40 +226,35 @@ const RegistrationToken = () => {
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-left">
-                    <span>{employee.status}</span>
-                  </TableCell>
+                  <TableCell className="text-left">{employee.status}</TableCell>
                   <TableCell className="text-left">
                     <Button
-                      className="bg-blue-600 text-white hover:bg-blue-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="bg-blue-600 text-white hover:bg-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={() => handleGenerateToken(employee.email)}
                       disabled={disabledButtons.has(employee.email)}
                     >
                       Generate Token and Send Email
                       {disabledButtons.has(employee.email) &&
                         countdown[employee.email] !== undefined && (
-                          <span className="text-sm text-white">
+                          <span className="ml-2 text-sm">
                             ({countdown[employee.email]})
                           </span>
                         )}
                     </Button>
                   </TableCell>
                   <TableCell className="text-left">
-                    <span>
-                      {employee.link ? (
-                        <a
-                          href={employee.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 hover:text-blue-700 hover:underline"
-                        >
-                          {/* Only show the first 50 characters of the link */}
-                          {employee.link.slice(0, 50)}...
-                        </a>
-                      ) : (
-                        "Not yet sent or expired"
-                      )}
-                    </span>
+                    {employee.link ? (
+                      <a
+                        href={employee.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        {employee.link.slice(0, 50)}...
+                      </a>
+                    ) : (
+                      "Not yet sent or expired"
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -229,7 +263,7 @@ const RegistrationToken = () => {
         )}
       </div>
 
-      {/* Floating Add Employee Card */}
+      {/* Add Employee Modal */}
       {showAddEmployee && (
         <Card>
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -244,7 +278,6 @@ const RegistrationToken = () => {
                 <X className="w-5 h-5 hover:cursor-pointer" />
               </button>
               <h2 className="text-xl font-semibold mb-4">Add Employee</h2>
-              {/* Employee Form */}
               <Input
                 required
                 placeholder="First Name"
@@ -278,7 +311,6 @@ const RegistrationToken = () => {
               {error && <p className="text-red-500">{error}</p>}
               <Button
                 disabled={isAddingEmployee}
-                className="hover:cursor-pointer"
                 onClick={() => {
                   setIsAddingEmployee(true);
                   handleAddEmployee(

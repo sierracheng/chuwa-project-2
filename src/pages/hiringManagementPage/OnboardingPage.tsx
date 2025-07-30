@@ -4,6 +4,7 @@ import {
   updateOnboardingFeedbackAPI,
   updateOnboardingStatusAPI,
 } from "@/back-end/api/onboardingAPI";
+
 import { getEmployeesDataAPI } from "@/back-end/api/userAPI";
 import { Card } from "@/components/Card";
 import { Button } from "@/components/ui/button";
@@ -16,30 +17,87 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+} from "@tanstack/react-table";
 import { Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+
+type Employee = {
+  _id: string;
+  realName: {
+    firstName: string;
+    lastName: string;
+  };
+  email: string;
+  documents: {
+    profilePictureUrl: string;
+  };
+  status: string;
+};
+
+// Define table columns
+const columns: ColumnDef<Employee>[] = [
+  {
+    header: "Employee",
+    id: "fullName",
+    accessorFn: (row) => `${row.realName.firstName} ${row.realName.lastName}`,
+  },
+  {
+    header: "Email",
+    accessorKey: "email",
+  },
+  {
+    header: "Application",
+    accessorKey: "status",
+  },
+  {
+    header: "Action",
+    accessorKey: "action",
+  },
+];
 
 const OnboardingPage = () => {
   // Local State
   const [isLoading, setIsLoading] = useState(false);
-  const [employees, setEmployees] = useState<
-    {
-      _id: string;
-      realName: {
-        firstName: string;
-        lastName: string;
-      };
-      email: string;
-      documents: {
-        profilePictureUrl: string;
-      };
-      status: string;
-    }[]
-  >([]);
+  const [allEmployees, setAllEmployees] = useState<Employee[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isRejecting, setIsRejecting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [rejectionFeedback, setRejectionFeedback] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+
+  // Debounce logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // React Table instance
+  const table = useReactTable({
+    data: allEmployees,
+    columns,
+    state: {
+      globalFilter: debouncedSearch,
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: (row, columnId, filterValue) => {
+      const fullName =
+        `${row.original.realName.firstName} ${row.original.realName.lastName}`.toLowerCase();
+      return fullName.includes(filterValue.toLowerCase());
+    },
+  });
 
   // Initial fetch of employees
   useEffect(() => {
@@ -71,7 +129,7 @@ const OnboardingPage = () => {
           }
         })
       );
-      setEmployees(newEmployees);
+      setAllEmployees(newEmployees);
       setIsLoading(false);
     };
 
@@ -129,7 +187,12 @@ const OnboardingPage = () => {
       {/* Top Bar */}
       <div className="flex items-center justify-between py-4 mb-1 w-full">
         <div className="flex flex-row items-center gap-4 mb-1 w-full max-w-2xl">
-          <Input placeholder="Search by name..." className="max-w-sm" />
+          <Input
+            placeholder="Search by name..."
+            className="max-w-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
       {/* All and Three Status Buttons */}
@@ -181,11 +244,70 @@ const OnboardingPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employees
-                .filter((employee) =>
-                  selectedStatus ? employee.status === selectedStatus : true
-                )
-                .map((employee) => (
+              {selectedStatus &&
+                allEmployees
+                  .filter((employee) =>
+                    selectedStatus ? employee.status === selectedStatus : true
+                  )
+                  .map((employee) => (
+                    <TableRow
+                      key={employee._id}
+                      className="border-b-1 border-gray-300"
+                    >
+                      <TableCell className="text-left">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={employee.documents.profilePictureUrl}
+                            alt="Profile Picture"
+                            className="w-10 h-10 rounded-full"
+                          />
+                          {employee.realName.firstName}{" "}
+                          {employee.realName.lastName}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-left">
+                        <div className="flex flex-col">
+                          <span>{employee.email}</span>
+                        </div>
+                      </TableCell>
+                      {/* Click the url to view the application */}
+                      <TableCell className="text-left">
+                        <div className="text-blue-500 cursor-pointer flex flex-col">
+                          <a
+                            href={`/hr/hiring/viewApplication?userId=${employee._id}`}
+                          >
+                            View Application
+                          </a>
+                          <span className="text-sm text-gray-500">
+                            {employee.status}
+                          </span>
+                        </div>
+                      </TableCell>
+                      {/* Button to approve or reject the application */}
+                      <TableCell className="text-left">
+                        <div className="flex flex-row gap-2">
+                          <Button
+                            onClick={() => {
+                              handleApproveApplication(employee._id);
+                            }}
+                            className="bg-blue-500 text-white hover:bg-green-500 cursor-pointer"
+                          >
+                            <span>Approve</span>
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              handleRejectApplication(employee._id);
+                            }}
+                            className="bg-white text-black cursor-pointer border hover:bg-red-500 border-gray-300"
+                          >
+                            <span>Reject</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              {!selectedStatus &&
+                table.getRowModel().rows.map(({ original: employee }) => (
                   <TableRow
                     key={employee._id}
                     className="border-b-1 border-gray-300"
