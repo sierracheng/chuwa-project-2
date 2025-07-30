@@ -5,6 +5,8 @@ export interface IEmployee {
   lastName: string;
   email: string;
   token: Types.ObjectId;
+  status: "Pending" | "Submitted";
+  link: string;
 }
 
 export interface IRegistrationToken {
@@ -12,6 +14,8 @@ export interface IRegistrationToken {
   email: string;
   token: string;
   expiresAt: Date;
+  status: "Pending" | "Submitted";
+  link: string;
 }
 
 export const RegistrationTokenSchema = new mongoose.Schema<IRegistrationToken>(
@@ -23,6 +27,8 @@ export const RegistrationTokenSchema = new mongoose.Schema<IRegistrationToken>(
       type: Date,
       default: () => new Date(Date.now() + 3 * 60 * 60 * 1000),
     },
+    status: { type: String, default: "Pending" },
+    link: { type: String, default: "" },
   },
   { timestamps: true }
 );
@@ -32,6 +38,8 @@ export const EmployeeSchema = new mongoose.Schema<IEmployee>({
   lastName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   token: { type: Schema.Types.ObjectId, ref: "RegistrationToken" },
+  status: { type: String, default: "Pending" },
+  link: { type: String, default: "" },
 });
 
 // Automatically delete the token when the token is expired

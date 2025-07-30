@@ -3,6 +3,7 @@ import { OnboardingApplication } from "../models/OnboardingApplication";
 import { User } from "../models/User";
 import { VisaStatusManagement } from "../models/VisaStatusManagement";
 import mongoose from "mongoose";
+import { Employee } from "../models/RegistrationToken";
 
 /**
  * HTTP Status Code:
@@ -70,7 +71,10 @@ export async function createOnboardingApplication(req: Request, res: Response) {
       emergencyContact,
       onboardingApplication: onboardingApplication._id,
     });
-
+    const temp = await User.findById(userId);
+    if (temp) {
+      await Employee.updateOne({ email: temp.email }, { status: "Submitted" });
+    }
     if (req.body.documents?.workAuthorizationUrl) {
       const existingVisa = await VisaStatusManagement.findOne({
         user: req.body.userId,

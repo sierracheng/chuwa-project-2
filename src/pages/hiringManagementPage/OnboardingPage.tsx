@@ -16,11 +16,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const OnboardingPage = () => {
   // Local State
+  const [isLoading, setIsLoading] = useState(false);
   const [employees, setEmployees] = useState<
     {
       _id: string;
@@ -43,9 +44,16 @@ const OnboardingPage = () => {
   // Initial fetch of employees
   useEffect(() => {
     const fetchEmployees = async () => {
+      setIsLoading(true);
       const employees = await getEmployeesDataAPI();
+      const filteredEmployees = employees.filter(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (employee: { onboardingApplication: any }) =>
+          employee.onboardingApplication
+      );
+
       const newEmployees = await Promise.all(
-        employees.map(async (employee: { _id: string }) => {
+        filteredEmployees.map(async (employee: { _id: string }) => {
           try {
             const documents = await getUserDocumentObjectAPI(employee._id);
             const onboardingApplication = await getOnboardingApplicationAPI(
@@ -59,11 +67,12 @@ const OnboardingPage = () => {
             };
           } catch (error) {
             console.error("Error getting documents:", error);
-            return employee;
+            throw error;
           }
         })
       );
       setEmployees(newEmployees);
+      setIsLoading(false);
     };
 
     fetchEmployees();
@@ -75,6 +84,7 @@ const OnboardingPage = () => {
     try {
       const response = await updateOnboardingStatusAPI(userId, "approved");
       console.log(response);
+      window.location.reload();
     } catch (error) {
       console.error("Error handle approving application:", error);
     }
@@ -107,6 +117,7 @@ const OnboardingPage = () => {
         setIsRejecting(false);
         setCurrentUserId(null);
         setRejectionFeedback("");
+        window.location.reload();
       } catch (error) {
         console.error("Error handle confirming reject:", error);
       }
@@ -155,76 +166,85 @@ const OnboardingPage = () => {
 
       {/* Table */}
       <div className="rounded-md border w-full">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-left">Employee</TableHead>
-              <TableHead className="text-left">Email</TableHead>
-              <TableHead className="text-left">Application</TableHead>
-              <TableHead className="text-left">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {employees
-              .filter((employee) =>
-                selectedStatus ? employee.status === selectedStatus : true
-              )
-              .map((employee) => (
-                <TableRow
-                  key={employee._id}
-                  className="border-b-1 border-gray-300"
-                >
-                  <TableCell className="text-left">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={employee.documents.profilePictureUrl}
-                        alt="Profile Picture"
-                        className="w-10 h-10 rounded-full"
-                      />
-                      {employee.realName.firstName} {employee.realName.lastName}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-left">
-                    <div className="flex flex-col">
-                      <span>{employee.email}</span>
-                    </div>
-                  </TableCell>
-                  {/* Click the url to view the application */}
-                  <TableCell className="text-left">
-                    <div className="text-blue-500 cursor-pointer flex flex-col">
-                      <a href={`/onboarding/${employee._id}`}>
-                        View Application
-                      </a>
-                      <span className="text-sm text-gray-500">
-                        {employee.status}
-                      </span>
-                    </div>
-                  </TableCell>
-                  {/* Button to approve or reject the application */}
-                  <TableCell className="text-left">
-                    <div className="flex flex-row gap-2">
-                      <Button
-                        onClick={() => {
-                          handleApproveApplication(employee._id);
-                        }}
-                        className="bg-blue-500 text-white hover:bg-green-500 cursor-pointer"
-                      >
-                        <span>Approve</span>
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          handleRejectApplication(employee._id);
-                        }}
-                        className="bg-white text-black cursor-pointer border hover:bg-red-500 border-gray-300"
-                      >
-                        <span>Reject</span>
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="w-5 h-5 animate-spin" />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left">Employee</TableHead>
+                <TableHead className="text-left">Email</TableHead>
+                <TableHead className="text-left">Application</TableHead>
+                <TableHead className="text-left">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {employees
+                .filter((employee) =>
+                  selectedStatus ? employee.status === selectedStatus : true
+                )
+                .map((employee) => (
+                  <TableRow
+                    key={employee._id}
+                    className="border-b-1 border-gray-300"
+                  >
+                    <TableCell className="text-left">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={employee.documents.profilePictureUrl}
+                          alt="Profile Picture"
+                          className="w-10 h-10 rounded-full"
+                        />
+                        {employee.realName.firstName}{" "}
+                        {employee.realName.lastName}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-left">
+                      <div className="flex flex-col">
+                        <span>{employee.email}</span>
+                      </div>
+                    </TableCell>
+                    {/* Click the url to view the application */}
+                    <TableCell className="text-left">
+                      <div className="text-blue-500 cursor-pointer flex flex-col">
+                        <a
+                          href={`/hr/hiring/viewApplication?userId=${employee._id}`}
+                        >
+                          View Application
+                        </a>
+                        <span className="text-sm text-gray-500">
+                          {employee.status}
+                        </span>
+                      </div>
+                    </TableCell>
+                    {/* Button to approve or reject the application */}
+                    <TableCell className="text-left">
+                      <div className="flex flex-row gap-2">
+                        <Button
+                          onClick={() => {
+                            handleApproveApplication(employee._id);
+                          }}
+                          className="bg-blue-500 text-white hover:bg-green-500 cursor-pointer"
+                        >
+                          <span>Approve</span>
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            handleRejectApplication(employee._id);
+                          }}
+                          className="bg-white text-black cursor-pointer border hover:bg-red-500 border-gray-300"
+                        >
+                          <span>Reject</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
       {/* Show Reject Window */}
       {isRejecting && (

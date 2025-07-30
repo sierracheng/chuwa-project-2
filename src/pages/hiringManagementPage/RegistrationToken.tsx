@@ -9,17 +9,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useRef, useState } from "react";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Card } from "@/components/Card/Card";
 import {
   createEmployeeAPI,
   createRegistrationTokenAPI,
   getAllEmployeesAPI,
-  getTokenAPI,
 } from "@/back-end/api/registrationTokenAPI";
 
 const RegistrationToken = () => {
   // Local State
+  const [isLoading, setIsLoading] = useState(false);
+  const [isAddingEmployee, setIsAddingEmployee] = useState(false);
   const [showAddEmployee, setShowAddEmployee] = useState(false);
   const [employees, setEmployees] = useState<
     {
@@ -28,6 +29,8 @@ const RegistrationToken = () => {
       lastName: string;
       email: string;
       token: string;
+      link: string;
+      status: string;
     }[]
   >([]);
   const employeesRef = useRef(employees);
@@ -56,35 +59,15 @@ const RegistrationToken = () => {
   // Initial fetch of employees
   useEffect(() => {
     const fetchEmployees = async () => {
+      setIsLoading(true);
       const rawEmployees = await getAllEmployeesAPI();
       const updatedEmployees = rawEmployees.employees;
       setEmployees(updatedEmployees);
+      setIsLoading(false);
     };
 
     fetchEmployees();
   }, []);
-
-  // Fetch tokens
-  useEffect(() => {
-    const fetchTokenAndUpdate = async (email: string) => {
-      const response = await getTokenAPI(email);
-      if (response.success) {
-        setEmployees((prev) =>
-          prev.map((emp) =>
-            emp.email === email
-              ? {
-                  ...emp,
-                  token: response.token,
-                }
-              : emp
-          )
-        );
-      }
-    };
-    employeesRef.current.forEach((emp) => {
-      fetchTokenAndUpdate(emp.email);
-    });
-  }, [employees]);
 
   // Add a new employee to the database
   const handleAddEmployee = async (
@@ -105,6 +88,8 @@ const RegistrationToken = () => {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsAddingEmployee(false);
     }
   };
 
@@ -116,7 +101,7 @@ const RegistrationToken = () => {
     setDisabledButtons((prev) => new Set(prev).add(email));
     setCountdown((prev) => ({ ...prev, [email]: 5 }));
 
-    // Start countdown
+    // Start countdown, after 5 seconds, reload the page
     let count = 5;
     const interval = setInterval(() => {
       count -= 1;
@@ -134,11 +119,13 @@ const RegistrationToken = () => {
           const { [email]: _, ...rest } = prev;
           return rest;
         });
+        window.location.reload();
       }
     }, 1000);
 
     try {
       const response = await createRegistrationTokenAPI(HREmail, email);
+      console.log(response.link);
       if (response.success) {
         console.log("Token generated successfully");
       }
@@ -164,54 +151,82 @@ const RegistrationToken = () => {
 
       {/* Table */}
       <div className="rounded-md border w-full">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-left">Employee</TableHead>
-              <TableHead className="text-left">Email</TableHead>
-              <TableHead className="text-left">Token</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {employees.map((employee) => (
-              <TableRow
-                key={employee._id}
-                className="border-b-1 border-gray-300"
-              >
-                <TableCell className="text-left">
-                  <div className="flex items-center gap-2">
-                    {employee.firstName} {employee.lastName}
-                  </div>
-                </TableCell>
-                <TableCell className="text-left">
-                  <div className="flex flex-col">
-                    <span>{employee.email}</span>
-                    <span className="text-sm text-gray-500">
-                      {employee.token
-                        ? "Token: " + employee.token
-                        : "No token sent or expired"}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-left">
-                  <Button
-                    className="bg-blue-600 text-white hover:bg-blue-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    onClick={() => handleGenerateToken(employee.email)}
-                    disabled={disabledButtons.has(employee.email)}
-                  >
-                    Generate Token and Send Email
-                    {disabledButtons.has(employee.email) &&
-                      countdown[employee.email] !== undefined && (
-                        <span className="text-sm text-white">
-                          ({countdown[employee.email]})
-                        </span>
-                      )}
-                  </Button>
-                </TableCell>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="w-5 h-5 animate-spin" />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-left">Employee</TableHead>
+                <TableHead className="text-left">Email</TableHead>
+                <TableHead className="text-left">Status</TableHead>
+                <TableHead className="text-left">Token</TableHead>
+                <TableHead className="text-left">Register Link</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {employees.map((employee) => (
+                <TableRow
+                  key={employee._id}
+                  className="border-b-1 border-gray-300"
+                >
+                  <TableCell className="text-left">
+                    <div className="flex items-center gap-2">
+                      {employee.firstName} {employee.lastName}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-left">
+                    <div className="flex flex-col">
+                      <span>{employee.email}</span>
+                      <span className="text-sm text-gray-500">
+                        {employee.token
+                          ? "Token was sent"
+                          : "No token sent or expired"}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-left">
+                    <span>{employee.status}</span>
+                  </TableCell>
+                  <TableCell className="text-left">
+                    <Button
+                      className="bg-blue-600 text-white hover:bg-blue-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      onClick={() => handleGenerateToken(employee.email)}
+                      disabled={disabledButtons.has(employee.email)}
+                    >
+                      Generate Token and Send Email
+                      {disabledButtons.has(employee.email) &&
+                        countdown[employee.email] !== undefined && (
+                          <span className="text-sm text-white">
+                            ({countdown[employee.email]})
+                          </span>
+                        )}
+                    </Button>
+                  </TableCell>
+                  <TableCell className="text-left">
+                    <span>
+                      {employee.link ? (
+                        <a
+                          href={employee.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:text-blue-700 hover:underline"
+                        >
+                          {/* Only show the first 50 characters of the link */}
+                          {employee.link.slice(0, 50)}...
+                        </a>
+                      ) : (
+                        "Not yet sent or expired"
+                      )}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
       {/* Floating Add Employee Card */}
@@ -262,16 +277,18 @@ const RegistrationToken = () => {
               />
               {error && <p className="text-red-500">{error}</p>}
               <Button
+                disabled={isAddingEmployee}
                 className="hover:cursor-pointer"
-                onClick={() =>
+                onClick={() => {
+                  setIsAddingEmployee(true);
                   handleAddEmployee(
                     employeeForm.firstName,
                     employeeForm.lastName,
                     employeeForm.email
-                  )
-                }
+                  );
+                }}
               >
-                Save
+                {isAddingEmployee ? "Adding..." : "Save"}
               </Button>
             </div>
           </div>

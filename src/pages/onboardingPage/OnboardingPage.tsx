@@ -24,11 +24,11 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { uploadFile } from "@/back-end/api/uploadFile";
 import type z from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { fetchFile } from "@/back-end/api/fetchFile";
 
 /**
- * TODO:
+ * DONE:
  * 1. Only employee can access this page
  * 2. When employee first time login to the system, he needs to create his information
  * 3. Get this user's onboarding status from database
@@ -39,6 +39,8 @@ import { fetchFile } from "@/back-end/api/fetchFile";
 export function OnboardingPage() {
   // Navigate
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const userId = searchParams.get("userId") || "";
 
   // Form
   const form = useOnboardingForm();
@@ -68,9 +70,6 @@ export function OnboardingPage() {
 
   // Submit button
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Get user id from local storage
-  const userId = localStorage.getItem("userId") || "6883e8c0764c51eb6f2d6b00"; // For testing id
 
   // Try get the onboarding status from database
   const [onboardingStatus, setOnboardingStatus] = useState<string | null>(null);

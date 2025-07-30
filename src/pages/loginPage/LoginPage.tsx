@@ -66,7 +66,7 @@ export function LoginPage() {
       if (response.user.role === "HR") {
         navigate("/hr/homepage");
       } else {
-        navigate("/employee/onboarding");
+        navigate(`/onboarding?userId=${userId}`);
       }
     } else {
       alert(response.message || "Login failed");

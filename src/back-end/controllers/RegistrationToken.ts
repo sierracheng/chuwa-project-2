@@ -94,20 +94,26 @@ export async function createRegistrationToken(req: Request, res: Response) {
     console.log("Generated unique token:", token);
     // The token should be valid for 3 hours
     const expiresAt = new Date(Date.now() + 3 * 60 * 60 * 1000);
-    // Save the token to the database
-    const newToken = await RegistrationToken.create({
-      token,
-      email,
-      expiresAt,
-    });
-    // Save the token to the employee
-    await Employee.updateOne({ email }, { token: newToken._id });
-    console.log("Saved registration token to DB");
     // signup url: http://localhost:xxxx/signup?email=xxx&token=xx
     const signupUrl = `${process.env.SIGN_UP_URL}?email=${encodeURIComponent(
       email
     )}&token=${token}`;
     console.log("Signup URL:", signupUrl);
+    // Save the token to the database
+    const newToken = await RegistrationToken.create({
+      token,
+      email,
+      expiresAt,
+      status: "Pending",
+      link: signupUrl,
+    });
+    // Save the token to the employee
+    await Employee.updateOne(
+      { email },
+      { token: newToken._id, status: "Pending", link: signupUrl }
+    );
+    console.log("Saved registration token to DB");
+
     // Send the token to the user's email
     try {
       await sendEmail({
@@ -122,6 +128,8 @@ export async function createRegistrationToken(req: Request, res: Response) {
         token,
         createdAt: newToken.createdAt,
         expiresAt: newToken.expiresAt,
+        link: newToken.link,
+        status: newToken.status,
       });
     } catch (error) {
       console.error("Failed to send email:", error);
@@ -177,6 +185,8 @@ export async function getToken(req: Request, res: Response) {
       token,
       createdAt: token.createdAt,
       expiresAt: token.expiresAt,
+      link: token.link,
+      status: token.status,
     });
   } catch (error) {
     return reportError(res, error, "getToken");

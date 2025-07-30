@@ -15,6 +15,7 @@ import { Layout } from "./components/Layout";
 import { HRProtectedRoutes } from "./routes/HRProtectedRoutes";
 import { EmployeeRouteProtection } from "./routes/EmployeeRouteProtection";
 import { HiringManagementPage } from "./pages/hiringManagementPage";
+import { ViewApplicationPage } from "./pages/hiringManagementPage/ViewApplicationPage";
 
 function App() {
   return (
@@ -52,6 +53,14 @@ function App() {
             }
           />
           <Route
+            path="hiring/viewApplication"
+            element={
+              <Layout>
+                <ViewApplicationPage />
+              </Layout>
+            }
+          />
+          <Route
             path="employees"
             element={
               <Layout>
@@ -68,10 +77,12 @@ function App() {
             }
           />
         </Route>
-        {/* Will add onboarding under /employee later*/}
 
+        {/* Both HR and Employee can access the Onboarding Page */}
+        <Route path="onboarding" element={<OnboardingPage />} />
+
+        {/* Employee can only access the following routes */}
         <Route path="/employee" element={<EmployeeRouteProtection />}>
-          <Route path="onboarding" element={<OnboardingPage />} />
           <Route
             path="homepage"
             element={
