@@ -191,9 +191,9 @@ export function ViewApplicationPage() {
               <h1 className="text-4xl font-semibold text-center text-gray-900 mb-16">
                 Onboarding Application Form
               </h1>
-              {hrFeedback && (
+              {hrFeedback && onboardingStatus !== "approved" && (
                 <div className="text-red-500 text-center mb-6">
-                  {hrFeedback}
+                  Status {onboardingStatus}, your HR feedback: {hrFeedback}
                 </div>
               )}
               <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">

@@ -67,6 +67,9 @@ export function OnboardingPage() {
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const [driverLicenseFile, setDriverLicenseFile] = useState<File | null>(null);
   const [optReceiptFile, setOptReceiptFile] = useState<File | null>(null);
+  const [optReceiptUrl, setOptReceiptUrl] = useState<string | null>(null);
+  const [driverLicenseUrl, setDriverLicenseUrl] = useState<string | null>(null);
+  const [profileUrl, setProfileUrl] = useState<string | null>(null);
 
   // Submit button
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,6 +103,7 @@ export function OnboardingPage() {
         );
         setProfileFile(new File([profileFile], "profile.jpg"));
         form.setValue("profilePicture", new File([profileFile], "profile.jpg"));
+        setProfileUrl(onboardingData.documents.profilePictureUrl);
 
         // Fetch the file from the URL
         const optFile = await fetchFile(
@@ -107,7 +111,7 @@ export function OnboardingPage() {
         );
         form.setValue("workAuth.optReceipt", new File([optFile], "opt.pdf"));
         setOptReceiptFile(new File([optFile], "opt.pdf"));
-
+        setOptReceiptUrl(onboardingData.documents.workAuthorizationUrl);
         // Fetch driver license
         const driverLicenseFile = await fetchFile(
           onboardingData.documents.driverLicenseUrl
@@ -119,6 +123,7 @@ export function OnboardingPage() {
           "documents.driverLicense",
           new File([driverLicenseFile], "driver-license.pdf")
         );
+        setDriverLicenseUrl(onboardingData.documents.driverLicenseUrl);
       }
     };
     fetchOnboardingStatus();
@@ -368,8 +373,10 @@ export function OnboardingPage() {
                               if (file) {
                                 onChange(file);
                                 setProfileFile(file);
+                                setProfileUrl(URL.createObjectURL(file));
                               } else {
                                 setProfileFile(null);
+                                setProfileUrl("");
                               }
                             }}
                             className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
@@ -383,7 +390,12 @@ export function OnboardingPage() {
 
                 {profileFile && (
                   <div className="text-sm underline text-blue-500 flex justify-start gap-2">
-                    <a href={URL.createObjectURL(profileFile)} download>
+                    <a
+                      href={profileUrl || ""}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
                       {profileFile.name}
                     </a>
                     <button
@@ -391,6 +403,7 @@ export function OnboardingPage() {
                       onClick={() => {
                         setProfileFile(null);
                         setProfilePreview(null);
+                        setProfileUrl("");
                       }}
                       className="text-red-600 underline text-sm w-fit"
                     >
@@ -602,8 +615,10 @@ export function OnboardingPage() {
                                   if (file) {
                                     onChange(file);
                                     setOptReceiptFile(file);
+                                    setOptReceiptUrl(URL.createObjectURL(file));
                                   } else {
                                     setOptReceiptFile(null);
+                                    setOptReceiptUrl("");
                                   }
                                 }}
                                 className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
@@ -616,12 +631,20 @@ export function OnboardingPage() {
                     )}
                     {optReceiptFile && (
                       <div className="text-sm underline text-blue-500 flex justify-start gap-2">
-                        <a href={URL.createObjectURL(optReceiptFile)} download>
+                        <a
+                          href={optReceiptUrl || ""}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
                           {optReceiptFile.name}
                         </a>
                         <button
                           type="button"
-                          onClick={() => setOptReceiptFile(null)}
+                          onClick={() => {
+                            setOptReceiptFile(null);
+                            setOptReceiptUrl("");
+                          }}
                           className="text-red-600 underline text-sm w-fit"
                         >
                           Delete
@@ -856,8 +879,10 @@ export function OnboardingPage() {
                               if (file) {
                                 onChange(file);
                                 setDriverLicenseFile(file);
+                                setDriverLicenseUrl(URL.createObjectURL(file));
                               } else {
                                 setDriverLicenseFile(null);
+                                setDriverLicenseUrl("");
                               }
                             }}
                             className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
@@ -872,12 +897,20 @@ export function OnboardingPage() {
                 {/* Allow user to delete the file */}
                 {driverLicenseFile && (
                   <div className="text-sm underline text-blue-500 flex justify-start gap-2">
-                    <a href={URL.createObjectURL(driverLicenseFile)} download>
+                    <a
+                      href={driverLicenseUrl || ""}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
                       {driverLicenseFile.name}
                     </a>
                     <button
                       type="button"
-                      onClick={() => setDriverLicenseFile(null)}
+                      onClick={() => {
+                        setDriverLicenseFile(null);
+                        setDriverLicenseUrl("");
+                      }}
                       className="text-red-600 underline text-sm w-fit"
                     >
                       Delete
@@ -901,8 +934,10 @@ export function OnboardingPage() {
                               if (file) {
                                 onChange(file);
                                 setOptReceiptFile(file);
+                                setOptReceiptUrl(URL.createObjectURL(file));
                               } else {
                                 setOptReceiptFile(null);
+                                setOptReceiptUrl("");
                               }
                             }}
                             className="flex text-sm hover:cursor-pointer border-2 border-gray-300 rounded-md p-2 w-fit"
@@ -918,12 +953,20 @@ export function OnboardingPage() {
                 {/* Allow user to delete the file */}
                 {optReceiptFile && (
                   <div className="text-sm underline text-blue-500 flex justify-start gap-2">
-                    <a href={URL.createObjectURL(optReceiptFile)} download>
+                    <a
+                      href={optReceiptUrl || ""}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
                       {optReceiptFile.name}
                     </a>
                     <button
                       type="button"
-                      onClick={() => setOptReceiptFile(null)}
+                      onClick={() => {
+                        setOptReceiptFile(null);
+                        setOptReceiptUrl("");
+                      }}
                       className="text-red-600 underline text-sm w-fit"
                     >
                       Delete
