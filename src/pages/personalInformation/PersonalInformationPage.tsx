@@ -192,7 +192,7 @@ export function PersonalInformationPage() {
                             )}
                         </div>
                         <div className="flex-1 grid grid-cols-2 gap-3">
-                            {['firstName', 'middleName', 'lastName', 'preferredName'].map((key) =>
+                            {['FirstName', 'MiddleName', 'LastName', 'PreferredName'].map((key) =>
                                 isEditing ? (
                                     <input
                                         key={key}
