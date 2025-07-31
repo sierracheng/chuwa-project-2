@@ -37,7 +37,7 @@ export function EmployeeProfileHrPage() {
     return (
         <div className="flex flex-col min-h-screen pl-12 py-8">
             <div className="flex justify-between items-center pr-12">
-                <h1 className="text-[40px] text-left font-semibold mb-6">Profile</h1>
+                <h1 className="text-[40px] text-left font-semibold mb-6">{userData?.realName.firstName}'s Profile</h1>
             </div>
 
             <div className="mt-6 mr-12 space-y-6 text-left">
