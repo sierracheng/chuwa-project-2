@@ -7,3 +7,4 @@ export * from './personalInformation';
 export * from "./errorPage";
 export * from "./visaStatusEmployeePage";
 export * from './HomePage';
+export * from './employeeProfileHrPage'

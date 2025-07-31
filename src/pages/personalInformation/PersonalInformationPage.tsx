@@ -1,4 +1,3 @@
-// Full updated PersonalInformationPage.tsx including all sections
 import React, { useEffect, useState } from 'react';
 import type { IUser } from '../../back-end/models/User';
 import Section from '../../components/ui/section';

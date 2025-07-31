@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { IUser } from '../../back-end/models/User'
 import {
     Table,
@@ -24,8 +24,8 @@ import { getEmployeesDataAPI } from '@/back-end/api/userAPI'
 import { icons } from '../../constants/icons'
 
 
-
 export type EmployeeProfiles = {
+    id: string
     employee: string
     profilePictureUrl?: string
     title: string
@@ -47,6 +47,7 @@ const columns: ColumnDef<EmployeeProfiles>[] = [
         header: "Employee",
         cell: ({ row }) => {
             const name = row.getValue("employee") as string;
+            const id = row.original.id;
             const imageUrl = row.original.profilePictureUrl;
             const initials = name
                 .split(" ")
@@ -66,7 +67,13 @@ const columns: ColumnDef<EmployeeProfiles>[] = [
                             {initials}
                         </div>
                     )}
-                    <span className="capitalize">{name}</span>
+                    <a
+                        href={`/hr/employee/profile?id=${id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="capitalize text-black hover:underline"
+                    >{name}</a>
+                    {/* <span className="capitalize">{name}</span> */}
                 </div>
             );
         },
@@ -104,13 +111,12 @@ const columns: ColumnDef<EmployeeProfiles>[] = [
 export function EmployeeProfilesPage() {
     const [allEmployees, setAllEmployees] = useState<EmployeeProfiles[]>([]);
     const [employees, setEmployees] = useState<EmployeeProfiles[]>([])
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    const [sorting, setSorting] = useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
         []
     )
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = useState({})
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -142,9 +148,10 @@ export function EmployeeProfilesPage() {
         const fetchEmployees = async () => {
             try {
                 const res = await getEmployeesDataAPI()
-                console.log(res)
+                //console.log(res)
                 if (res && res.length > 0) {
                     const employeeProfiles: EmployeeProfiles[] = res.map((user: IUser) => ({
+                        id: user._id.toString(),
                         employee: user.realName?.firstName + " " + user.realName?.lastName,
                         profilePictureUrl: user.onboardingApplication?.documents?.profilePictureUrl || "",
                         workAuth: user.employment.visaTitle || "",
@@ -157,6 +164,7 @@ export function EmployeeProfilesPage() {
                             preferredName: user.realName?.preferredName || "",
                         }
                     }));
+                    console.log(employeeProfiles)
                     employeeProfiles.sort((a, b) => {
                         return a.fullName.lastName.localeCompare(b.fullName.lastName);
                     })
