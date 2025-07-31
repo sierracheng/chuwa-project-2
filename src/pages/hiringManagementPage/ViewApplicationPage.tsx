@@ -178,7 +178,12 @@ export function ViewApplicationPage() {
     <main className="flex flex-col w-full text-2xl relative min-h-screen overflow-hidden pl-12 py-8">
       {/* A X button that go to the previous page */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => {
+          navigate(-1);
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }}
         className="absolute top-4 right-4 text-gray-500 hover:text-black hover:cursor-pointer"
       >
         <X className="w-5 h-5 hover:cursor-pointer" />
@@ -809,7 +814,7 @@ export function ViewApplicationPage() {
                     handleApproveApplication(userId);
                   }}
                   className="bg-blue-500 text-white hover:bg-green-500 cursor-pointer"
-                  disabled={isSubmitting}
+                  disabled={onboardingStatus !== "pending" || isSubmitting}
                 >
                   Approve
                 </Button>
@@ -821,7 +826,7 @@ export function ViewApplicationPage() {
                     handleRejectApplication(userId);
                   }}
                   className="bg-white text-black cursor-pointer border hover:bg-red-500 border-gray-300"
-                  disabled={isSubmitting}
+                  disabled={onboardingStatus !== "pending" || isSubmitting}
                 >
                   Reject
                 </Button>

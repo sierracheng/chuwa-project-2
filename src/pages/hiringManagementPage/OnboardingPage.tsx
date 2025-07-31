@@ -354,6 +354,7 @@ const OnboardingPage = () => {
                       <TableCell className="text-left">
                         <div className="flex flex-row gap-2">
                           <Button
+                            disabled={employee.status !== "pending"}
                             onClick={() => {
                               handleApproveApplication(employee._id);
                             }}
@@ -362,6 +363,7 @@ const OnboardingPage = () => {
                             <span>Approve</span>
                           </Button>
                           <Button
+                            disabled={employee.status !== "pending"}
                             onClick={() => {
                               handleRejectApplication(employee._id);
                             }}
