@@ -27,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { icons } from "../../constants/icons";
 
 import {
   getInProgressVisaEmployeesAPI,
@@ -299,6 +300,12 @@ export function InProgress() {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 8,
+        pageIndex: 0,
+      },
+    },
   });
 
   if (loading) return <div className="p-4">Loading...</div>;
@@ -359,6 +366,73 @@ export function InProgress() {
           </TableBody>
         </Table>
       </div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-6 text-sm text-gray-600">
+                      <div className="mb-2 md:mb-0">
+                          Showing{" "}
+                          <span className="font-semibold">
+                              {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}
+                          </span>{" "}
+                          to{" "}
+                          <span className="font-semibold">
+                              {Math.min(
+                                  (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+                                  table.getFilteredRowModel().rows.length
+                              )}
+                          </span>{" "}
+                          of{" "}
+                          <span className="font-semibold">{table.getFilteredRowModel().rows.length}</span>{" "}
+                          employees
+                      </div>
+      
+                      <div className="flex gap-2 items-center justify-center">
+                          <button
+                              onClick={() => table.previousPage()}
+                              disabled={!table.getCanPreviousPage()}
+                              className="w-8 h-8 flex items-center justify-center border rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+                          >
+                              {icons.ARROWLEFT}
+                          </button>
+      
+                          {Array.from({ length: table.getPageCount() }, (_, i) => i).map((page, index) => {
+                              const isCurrent = page === table.getState().pagination.pageIndex;
+                              if (
+                                  page === 0 ||
+                                  page === table.getPageCount() - 1 ||
+                                  Math.abs(page - table.getState().pagination.pageIndex) <= 1
+                              ) {
+                                  return (
+                                      <button
+                                          key={index}
+                                          onClick={() => table.setPageIndex(page)}
+                                          className={`w-8 h-8 border rounded-md flex items-center justify-center ${isCurrent ? "bg-blue-600 text-white font-bold" : "text-gray-700 hover:bg-gray-100"
+                                              }`}
+                                      >
+                                          {page + 1}
+                                      </button>
+                                  );
+                              } else if (
+                                  (page === table.getState().pagination.pageIndex - 2 && page !== 0 + 1) ||
+                                  (page === table.getState().pagination.pageIndex + 2 &&
+                                      page !== table.getPageCount() - 2)
+                              ) {
+                                  return (
+                                      <span key={index} className="px-1 text-gray-400">
+                                          ...
+                                      </span>
+                                  );
+                              }
+                              return null;
+                          })}
+      
+                          <button
+                              onClick={() => table.nextPage()}
+                              disabled={!table.getCanNextPage()}
+                              className="w-8 h-8 flex items-center justify-center border rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+                          >
+                              {icons.ARROWRIGHT}
+                          </button>
+                      </div>
+                  </div>
     </div>
   );
 }
