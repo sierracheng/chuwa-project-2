@@ -222,7 +222,7 @@ export function All() {
     },
     initialState: {
       pagination: {
-        pageSize: 8,
+        pageSize: 5,
         pageIndex: 0,
       },
     },

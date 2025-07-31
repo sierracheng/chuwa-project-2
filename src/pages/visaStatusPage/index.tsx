@@ -1,3 +1,3 @@
 export * from './VisaStatusPage';
-export * from './InProgress';
-export * from './All';
+export { InProgress } from './InProgress';
+export { All } from './All';
