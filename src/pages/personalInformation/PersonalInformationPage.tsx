@@ -292,11 +292,49 @@ export function PersonalInformationPage() {
                         <div className="space-y-4">
                             <div className="flex flex-col gap-2">
                                 <label className="font-medium">Upload Driver's License</label>
-                                <input type="file" accept="application/pdf,image/*" onChange={handleDocumentUpload('driverLicenseUrl')} />
+                                {formState.onboardingApplication?.documents?.driverLicenseUrl && (
+                                    <a
+                                        href={formState.onboardingApplication.documents.driverLicenseUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-blue-500 underline"
+                                    >
+                                        View Existing Driver’s License
+                                    </a>
+                                )}
+                                <label className="flex justify-center items-center bg-[#2D68FE] w-1/8 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-700 transition">
+                                    Upload File
+                                    <input
+                                        type="file"
+                                        accept="application/pdf,image/*"
+                                        onChange={handleDocumentUpload('driverLicenseUrl')}
+                                        className="hidden"
+                                    />
+                                </label>
                             </div>
+
                             <div className="flex flex-col gap-2">
                                 <label className="font-medium">Upload Work Authorization</label>
-                                <input type="file" accept="application/pdf,image/*" onChange={handleDocumentUpload('workAuthorizationUrl')} />
+                                {formState.onboardingApplication?.documents?.workAuthorizationUrl && (
+                                    <a
+                                        href={formState.onboardingApplication.documents.workAuthorizationUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-blue-500 underline"
+                                    >
+                                        View Existing Work Authorization
+                                    </a>
+                                )}
+                                <label className="flex justify-center items-center bg-[#2D68FE] w-1/8 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-700 transition">
+                                    Upload File
+                                    <input
+                                        type="file"
+                                        accept="application/pdf/*"
+                                        onChange={handleDocumentUpload('workAuthorizationUrl')}
+                                        className="hidden"
+                                    />
+                                </label>
+
                             </div>
                         </div>
                     ) : (
@@ -304,7 +342,12 @@ export function PersonalInformationPage() {
                             {userData?.onboardingApplication?.documents?.driverLicenseUrl && (
                                 <div className="flex justify-between">
                                     <span>Driver’s License</span>
-                                    <a href={userData.onboardingApplication.documents.driverLicenseUrl} target="_blank" className="text-blue-500" rel="noreferrer">
+                                    <a
+                                        href={userData.onboardingApplication.documents.driverLicenseUrl}
+                                        target="_blank"
+                                        className="text-blue-500"
+                                        rel="noreferrer"
+                                    >
                                         Download
                                     </a>
                                 </div>
@@ -312,7 +355,12 @@ export function PersonalInformationPage() {
                             {userData?.onboardingApplication?.documents?.workAuthorizationUrl && (
                                 <div className="flex justify-between">
                                     <span>Work Authorization</span>
-                                    <a href={userData.onboardingApplication.documents.workAuthorizationUrl} target="_blank" className="text-blue-500" rel="noreferrer">
+                                    <a
+                                        href={userData.onboardingApplication.documents.workAuthorizationUrl}
+                                        target="_blank"
+                                        className="text-blue-500"
+                                        rel="noreferrer"
+                                    >
                                         Download
                                     </a>
                                 </div>
