@@ -1,4 +1,8 @@
 import { MdErrorOutline } from "react-icons/md";
+import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
+import { MdKeyboardDoubleArrowRight } from "react-icons/md";
+
+
 
 
 /**
@@ -8,4 +12,6 @@ import { MdErrorOutline } from "react-icons/md";
  */
 export const icons = {
     ERROR: <MdErrorOutline />,
+    ARROWLEFT: <MdKeyboardDoubleArrowLeft />,
+    ARROWRIGHT: <MdKeyboardDoubleArrowRight />
 };

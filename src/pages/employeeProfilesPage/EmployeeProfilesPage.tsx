@@ -21,6 +21,8 @@ import {
     type VisibilityState,
 } from "@tanstack/react-table"
 import { getEmployeesDataAPI } from '@/back-end/api/userAPI'
+import { icons } from '../../constants/icons'
+
 
 
 export type EmployeeProfiles = {
@@ -145,8 +147,8 @@ export function EmployeeProfilesPage() {
                     const employeeProfiles: EmployeeProfiles[] = res.map((user: IUser) => ({
                         employee: user.realName?.firstName + " " + user.realName?.lastName,
                         profilePictureUrl: user.onboardingApplication?.documents?.profilePictureUrl || "",
-                        workAuth: user.employment.visaTitle || "",  // assuming visa type is stored here
-                        ssn: user.ssn,                  // ensure it's a number
+                        workAuth: user.employment.visaTitle || "",
+                        ssn: user.ssn,
                         phoneNumber: user.contactInfo?.cellPhone || "",
                         email: user.email,
                         fullName: {
@@ -155,12 +157,14 @@ export function EmployeeProfilesPage() {
                             preferredName: user.realName?.preferredName || "",
                         }
                     }));
+                    employeeProfiles.sort((a, b) => {
+                        return a.fullName.lastName.localeCompare(b.fullName.lastName);
+                    })
                     setAllEmployees(employeeProfiles);
                     setEmployees(employeeProfiles);
                 }
 
 
-                //setEmployees(res.data)
             } catch (err) {
                 console.error('Failed to fetch employees:', err)
             }
@@ -186,6 +190,12 @@ export function EmployeeProfilesPage() {
             columnVisibility,
             rowSelection,
         },
+        initialState: {
+            pagination: {
+                pageSize: 8,
+                pageIndex: 0
+            }
+        }
     })
 
     return (
@@ -251,6 +261,73 @@ export function EmployeeProfilesPage() {
                             )}
                         </TableBody>
                     </Table>
+                </div>
+            </div>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-6 text-sm text-gray-600">
+                <div className="mb-2 md:mb-0">
+                    Showing{" "}
+                    <span className="font-semibold">
+                        {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}
+                    </span>{" "}
+                    to{" "}
+                    <span className="font-semibold">
+                        {Math.min(
+                            (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+                            table.getFilteredRowModel().rows.length
+                        )}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-semibold">{table.getFilteredRowModel().rows.length}</span>{" "}
+                    employees
+                </div>
+
+                <div className="flex gap-2 items-center justify-center">
+                    <button
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                        className="w-8 h-8 flex items-center justify-center border rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+                    >
+                        {icons.ARROWLEFT}
+                    </button>
+
+                    {Array.from({ length: table.getPageCount() }, (_, i) => i).map((page, index) => {
+                        const isCurrent = page === table.getState().pagination.pageIndex;
+                        if (
+                            page === 0 ||
+                            page === table.getPageCount() - 1 ||
+                            Math.abs(page - table.getState().pagination.pageIndex) <= 1
+                        ) {
+                            return (
+                                <button
+                                    key={index}
+                                    onClick={() => table.setPageIndex(page)}
+                                    className={`w-8 h-8 border rounded-md flex items-center justify-center ${isCurrent ? "bg-blue-600 text-white font-bold" : "text-gray-700 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    {page + 1}
+                                </button>
+                            );
+                        } else if (
+                            (page === table.getState().pagination.pageIndex - 2 && page !== 0 + 1) ||
+                            (page === table.getState().pagination.pageIndex + 2 &&
+                                page !== table.getPageCount() - 2)
+                        ) {
+                            return (
+                                <span key={index} className="px-1 text-gray-400">
+                                    ...
+                                </span>
+                            );
+                        }
+                        return null;
+                    })}
+
+                    <button
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                        className="w-8 h-8 flex items-center justify-center border rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+                    >
+                        {icons.ARROWRIGHT}
+                    </button>
                 </div>
             </div>
         </div>

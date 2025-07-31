@@ -83,13 +83,13 @@ async function testGetUserDocumentObjectAPI(userId: string) {
 
 function main() {
   testCreateRegistrationTokenAPI(
-    // "akiko948436464@gmail.com",
+    "akiko948436464@gmail.com",
     // "xcheng9@uw.edu",
-    "zhaoyq0429@gmail.com",
+    // "zhaoyq0429@gmail.com",
     //   // "Test12Grace@gmail.com",
-    "zgeming@seas.upenn.edu"
+    // "zgeming@seas.upenn.edu"
     //   //akiko948436464@gmail.com
-    //   // "xinranncheng@gmail.com",
+    "xinranncheng@gmail.com",
   );
   // testValidateTokenAPI(
   //   "7464b889991c37662977aed35a5e48266fbb3380c05af78ed1251e5b28e8ec78"
