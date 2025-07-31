@@ -193,7 +193,7 @@ export function ViewApplicationPage() {
               </h1>
               {hrFeedback && onboardingStatus !== "approved" && (
                 <div className="text-red-500 text-center mb-6">
-                  Status {onboardingStatus}, your HR feedback: {hrFeedback}
+                  Status {onboardingStatus}, HR last time feedback: {hrFeedback}
                 </div>
               )}
               <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">

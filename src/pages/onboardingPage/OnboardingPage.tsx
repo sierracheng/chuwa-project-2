@@ -285,7 +285,7 @@ export function OnboardingPage() {
                 </h1>
                 {hrFeedback && (
                   <div className="text-red-500 text-center mb-6">
-                    {hrFeedback}
+                    Status: {onboardingStatus}, your HR feedback: {hrFeedback}
                   </div>
                 )}
                 <h2 className="text-2xl font-semibold text-center text-gray-900 mb-6">
