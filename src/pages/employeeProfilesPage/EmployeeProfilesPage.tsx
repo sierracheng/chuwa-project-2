@@ -120,6 +120,11 @@ export function EmployeeProfilesPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
 
+    const [pagination, setPagination] = useState(() => ({
+        pageIndex: Number(localStorage.getItem("employeePageIndex") || 0),
+        pageSize: 8,
+    }));
+
     useEffect(() => {
         const filtered = allEmployees.filter(emp => {
             const { firstName, lastName, preferredName } = emp.fullName || {};
@@ -143,6 +148,10 @@ export function EmployeeProfilesPage() {
             clearTimeout(handler);
         };
     }, [searchTerm]);
+
+    useEffect(() => {
+        localStorage.setItem("employeePageIndex", pagination.pageIndex.toString());
+    }, [pagination.pageIndex]);
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -181,6 +190,8 @@ export function EmployeeProfilesPage() {
         fetchEmployees()
     }, [])
 
+
+
     const table = useReactTable({
         data: employees,
         columns,
@@ -192,17 +203,16 @@ export function EmployeeProfilesPage() {
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
+        onPaginationChange: setPagination,
         state: {
             sorting,
             columnFilters,
             columnVisibility,
             rowSelection,
+            pagination,
         },
         initialState: {
-            pagination: {
-                pageSize: 8,
-                pageIndex: 0
-            }
+            pagination,
         }
     })
 
