@@ -25,6 +25,7 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import { validateTokenAPI } from "@/back-end/api/validateTokenAPI";
+import { icons } from "@/constants/icons";
 
 type Employee = {
   _id: string;
@@ -116,6 +117,12 @@ const RegistrationToken = () => {
     columns,
     state: {
       globalFilter: debouncedSearch,
+    },
+    initialState: {
+      pagination: {
+        pageSize: 8,
+        pageIndex: 0,
+      },
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -228,56 +235,60 @@ const RegistrationToken = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {table.getRowModel().rows.map(({ original: employee }) => (
-                <TableRow key={employee._id}>
-                  <TableCell className="text-left">
-                    {employee.firstName} {employee.lastName}
-                  </TableCell>
-                  <TableCell className="text-left">
-                    <div className="flex flex-col">
-                      <span>{employee.email}</span>
-                      <span className="text-sm text-gray-500">
-                        {employee.token
-                          ? "Token was sent"
-                          : "No token sent or expired"}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-left">{employee.status}</TableCell>
-                  <TableCell className="text-left">
-                    <Button
-                      className="bg-blue-600 text-white hover:bg-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                      onClick={() => handleGenerateToken(employee.email)}
-                      disabled={
-                        disabledButtons.has(employee.email) ||
-                        employee.status === "Submitted"
-                      }
-                    >
-                      Generate Token and Send Email
-                      {disabledButtons.has(employee.email) &&
-                        countdown[employee.email] !== undefined && (
-                          <span className="ml-2 text-sm">
-                            ({countdown[employee.email]})
-                          </span>
-                        )}
-                    </Button>
-                  </TableCell>
-                  <TableCell className="text-left">
-                    {employee.link ? (
-                      <a
-                        href={employee.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
+              {table
+                .getPaginationRowModel()
+                .rows.map(({ original: employee }) => (
+                  <TableRow key={employee._id}>
+                    <TableCell className="text-left">
+                      {employee.firstName} {employee.lastName}
+                    </TableCell>
+                    <TableCell className="text-left">
+                      <div className="flex flex-col">
+                        <span>{employee.email}</span>
+                        <span className="text-sm text-gray-500">
+                          {employee.token
+                            ? "Token was sent"
+                            : "No token sent or expired"}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-left">
+                      {employee.status}
+                    </TableCell>
+                    <TableCell className="text-left">
+                      <Button
+                        className="bg-blue-600 text-white hover:bg-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => handleGenerateToken(employee.email)}
+                        disabled={
+                          disabledButtons.has(employee.email) ||
+                          employee.status === "Submitted"
+                        }
                       >
-                        {employee.link.slice(0, 50)}...
-                      </a>
-                    ) : (
-                      "Not yet sent or expired"
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+                        Generate Token and Send Email
+                        {disabledButtons.has(employee.email) &&
+                          countdown[employee.email] !== undefined && (
+                            <span className="ml-2 text-sm">
+                              ({countdown[employee.email]})
+                            </span>
+                          )}
+                      </Button>
+                    </TableCell>
+                    <TableCell className="text-left">
+                      {employee.link ? (
+                        <a
+                          href={employee.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          {employee.link.slice(0, 50)}...
+                        </a>
+                      ) : (
+                        "Not yet sent or expired"
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         )}
@@ -346,6 +357,85 @@ const RegistrationToken = () => {
           </div>
         </Card>
       )}
+      {/* Pagination */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-6 text-sm text-gray-600">
+        <div className="mb-2 md:mb-0">
+          Showing{" "}
+          <span className="font-semibold">
+            {table.getState().pagination.pageIndex *
+              table.getState().pagination.pageSize +
+              1}
+          </span>{" "}
+          to{" "}
+          <span className="font-semibold">
+            {Math.min(
+              (table.getState().pagination.pageIndex + 1) *
+                table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )}
+          </span>{" "}
+          of{" "}
+          <span className="font-semibold">
+            {table.getFilteredRowModel().rows.length}
+          </span>{" "}
+          employees
+        </div>
+
+        <div className="flex gap-2 items-center justify-center">
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="w-8 h-8 flex items-center justify-center border rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+          >
+            {icons.ARROWLEFT}
+          </button>
+
+          {Array.from({ length: table.getPageCount() }, (_, i) => i).map(
+            (page, index) => {
+              const isCurrent = page === table.getState().pagination.pageIndex;
+              if (
+                page === 0 ||
+                page === table.getPageCount() - 1 ||
+                Math.abs(page - table.getState().pagination.pageIndex) <= 1
+              ) {
+                return (
+                  <button
+                    key={index}
+                    onClick={() => table.setPageIndex(page)}
+                    className={`w-8 h-8 border rounded-md flex items-center justify-center ${
+                      isCurrent
+                        ? "bg-blue-600 text-white font-bold"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {page + 1}
+                  </button>
+                );
+              } else if (
+                (page === table.getState().pagination.pageIndex - 2 &&
+                  page !== 0 + 1) ||
+                (page === table.getState().pagination.pageIndex + 2 &&
+                  page !== table.getPageCount() - 2)
+              ) {
+                return (
+                  <span key={index} className="px-1 text-gray-400">
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            }
+          )}
+
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="w-8 h-8 flex items-center justify-center border rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+          >
+            {icons.ARROWRIGHT}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

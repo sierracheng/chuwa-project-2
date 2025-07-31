@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { icons } from "@/constants/icons";
 import {
   getCoreRowModel,
   getFilteredRowModel,
@@ -87,6 +88,12 @@ const OnboardingPage = () => {
     columns,
     state: {
       globalFilter: debouncedSearch,
+    },
+    initialState: {
+      pagination: {
+        pageSize: 8,
+        pageIndex: 0,
+      },
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -307,63 +314,65 @@ const OnboardingPage = () => {
                     </TableRow>
                   ))}
               {!selectedStatus &&
-                table.getRowModel().rows.map(({ original: employee }) => (
-                  <TableRow
-                    key={employee._id}
-                    className="border-b-1 border-gray-300"
-                  >
-                    <TableCell className="text-left">
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={employee.documents.profilePictureUrl}
-                          alt="Profile Picture"
-                          className="w-10 h-10 rounded-full"
-                        />
-                        {employee.realName.firstName}{" "}
-                        {employee.realName.lastName}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-left">
-                      <div className="flex flex-col">
-                        <span>{employee.email}</span>
-                      </div>
-                    </TableCell>
-                    {/* Click the url to view the application */}
-                    <TableCell className="text-left">
-                      <div className="text-blue-500 cursor-pointer flex flex-col">
-                        <a
-                          href={`/hr/hiring/viewApplication?userId=${employee._id}`}
-                        >
-                          View Application
-                        </a>
-                        <span className="text-sm text-gray-500">
-                          {employee.status}
-                        </span>
-                      </div>
-                    </TableCell>
-                    {/* Button to approve or reject the application */}
-                    <TableCell className="text-left">
-                      <div className="flex flex-row gap-2">
-                        <Button
-                          onClick={() => {
-                            handleApproveApplication(employee._id);
-                          }}
-                          className="bg-blue-500 text-white hover:bg-green-500 cursor-pointer"
-                        >
-                          <span>Approve</span>
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            handleRejectApplication(employee._id);
-                          }}
-                          className="bg-white text-black cursor-pointer border hover:bg-red-500 border-gray-300"
-                        >
-                          <span>Reject</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                table
+                  .getPaginationRowModel()
+                  .rows.map(({ original: employee }) => (
+                    <TableRow
+                      key={employee._id}
+                      className="border-b-1 border-gray-300"
+                    >
+                      <TableCell className="text-left">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={employee.documents.profilePictureUrl}
+                            alt="Profile Picture"
+                            className="w-10 h-10 rounded-full"
+                          />
+                          {employee.realName.firstName}{" "}
+                          {employee.realName.lastName}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-left">
+                        <div className="flex flex-col">
+                          <span>{employee.email}</span>
+                        </div>
+                      </TableCell>
+                      {/* Click the url to view the application */}
+                      <TableCell className="text-left">
+                        <div className="text-blue-500 cursor-pointer flex flex-col">
+                          <a
+                            href={`/hr/hiring/viewApplication?userId=${employee._id}`}
+                          >
+                            View Application
+                          </a>
+                          <span className="text-sm text-gray-500">
+                            {employee.status}
+                          </span>
+                        </div>
+                      </TableCell>
+                      {/* Button to approve or reject the application */}
+                      <TableCell className="text-left">
+                        <div className="flex flex-row gap-2">
+                          <Button
+                            onClick={() => {
+                              handleApproveApplication(employee._id);
+                            }}
+                            className="bg-blue-500 text-white hover:bg-green-500 cursor-pointer"
+                          >
+                            <span>Approve</span>
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              handleRejectApplication(employee._id);
+                            }}
+                            className="bg-white text-black cursor-pointer border hover:bg-red-500 border-gray-300"
+                          >
+                            <span>Reject</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
             </TableBody>
           </Table>
         )}
@@ -405,6 +414,85 @@ const OnboardingPage = () => {
           </div>
         </Card>
       )}
+      {/* Pagination */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-6 text-sm text-gray-600">
+        <div className="mb-2 md:mb-0">
+          Showing{" "}
+          <span className="font-semibold">
+            {table.getState().pagination.pageIndex *
+              table.getState().pagination.pageSize +
+              1}
+          </span>{" "}
+          to{" "}
+          <span className="font-semibold">
+            {Math.min(
+              (table.getState().pagination.pageIndex + 1) *
+                table.getState().pagination.pageSize,
+              table.getFilteredRowModel().rows.length
+            )}
+          </span>{" "}
+          of{" "}
+          <span className="font-semibold">
+            {table.getFilteredRowModel().rows.length}
+          </span>{" "}
+          employees
+        </div>
+
+        <div className="flex gap-2 items-center justify-center">
+          <button
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="w-8 h-8 flex items-center justify-center border rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+          >
+            {icons.ARROWLEFT}
+          </button>
+
+          {Array.from({ length: table.getPageCount() }, (_, i) => i).map(
+            (page, index) => {
+              const isCurrent = page === table.getState().pagination.pageIndex;
+              if (
+                page === 0 ||
+                page === table.getPageCount() - 1 ||
+                Math.abs(page - table.getState().pagination.pageIndex) <= 1
+              ) {
+                return (
+                  <button
+                    key={index}
+                    onClick={() => table.setPageIndex(page)}
+                    className={`w-8 h-8 border rounded-md flex items-center justify-center ${
+                      isCurrent
+                        ? "bg-blue-600 text-white font-bold"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {page + 1}
+                  </button>
+                );
+              } else if (
+                (page === table.getState().pagination.pageIndex - 2 &&
+                  page !== 0 + 1) ||
+                (page === table.getState().pagination.pageIndex + 2 &&
+                  page !== table.getPageCount() - 2)
+              ) {
+                return (
+                  <span key={index} className="px-1 text-gray-400">
+                    ...
+                  </span>
+                );
+              }
+              return null;
+            }
+          )}
+
+          <button
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="w-8 h-8 flex items-center justify-center border rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30"
+          >
+            {icons.ARROWRIGHT}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
